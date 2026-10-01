@@ -39,8 +39,8 @@ Di Windows, beberapa ekstensi ini nonaktif secara default. Buka `php.ini` (cari 
 ## 2. Clone Repository
 
 ```bash
-git clone https://github.com/certifiedsteven/Re-Learn.git
-cd Re-Learn
+git clone https://github.com/certifiedsteven/ReLearn.git
+cd ReLearn
 ```
 
 ## 3. Inisialisasi Pertama Kali (satu orang saja)
@@ -408,7 +408,7 @@ Buka `http://localhost:8000/api/v1/health` di browser. Hasilnya harus `{"status"
 Setelah setup, struktur repository kurang lebih seperti ini:
 
 ```text
-Re-Learn/
+ReLearn/
 ├── .gitignore
 ├── backend/
 │   ├── app/
