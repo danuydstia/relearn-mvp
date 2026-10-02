@@ -30,7 +30,7 @@ class User extends Authenticatable
 
     // Konstanta role
     const ROLE_ADMIN = 'admin';
-    const ROLE_PELAJAR = 'pelajar';
+    const ROLE_STUDENT = 'student';
 
     /**
      * Get the attributes that should be cast.
@@ -52,9 +52,9 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
-    public function isPelajar(): bool
+    public function isStudent(): bool
     {
-        return $this->role === self::ROLE_PELAJAR;
+        return $this->role === self::ROLE_STUDENT;
     }
 
     public function hasRole(string $role): bool
