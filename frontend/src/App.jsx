@@ -13,7 +13,7 @@ function App() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-[#f8f7f3] px-6 pb-6 pt-7 font-[Montserrat] text-[#17191f] min-[1024px]:flex-row min-[1024px]:p-0">
-      <header className="flex h-6 shrink-0 items-center justify-between min-[768px]:hidden">
+      <header className="flex h-6 shrink-0 items-center justify-between min-[1024px]:hidden">
         <img
           src="/relearn-full-logo.svg"
           alt="Re:Learn"
@@ -24,7 +24,7 @@ function App() {
         </a>
       </header>
 
-      <aside className="hidden min-w-0 flex-1 flex-col justify-between overflow-hidden px-8 pb-8 pt-8 min-[768px]:flex min-[1024px]:px-[72px] min-[1024px]:pb-[56px] min-[1024px]:pt-[44px]">
+      <aside className="hidden min-w-0 flex-1 flex-col justify-between overflow-hidden px-8 pb-8 pt-8 min-[1024px]:flex min-[1024px]:px-[72px] min-[1024px]:pb-[56px] min-[1024px]:pt-[44px]">
         <header className="h-6 shrink-0">
           <img src="/relearn-full-logo.svg" alt="Re:Learn" className="h-7 w-auto" />
         </header>
@@ -133,15 +133,15 @@ function App() {
         )}
       </aside>
 
-      <main className="flex min-h-0 w-full flex-1 flex-col justify-between bg-transparent px-0 pb-0 pt-8 min-[768px]:w-[31%] min-[768px]:flex-none min-[768px]:border-l min-[768px]:border-[#dad9d4] min-[768px]:bg-white min-[768px]:px-[4%] min-[768px]:pb-8 min-[768px]:pt-8 min-[1024px]:w-[min(600px,36vw)] min-[1024px]:px-[72px] min-[1024px]:pb-[40px] min-[1024px]:pt-[44px]">
-        <div className="hidden h-[15px] w-full items-center justify-end gap-2 whitespace-nowrap text-[12px] leading-[15px] min-[768px]:flex">
+      <main className="flex min-h-0 w-full flex-1 flex-col justify-between bg-transparent px-0 pb-0 pt-8 min-[1024px]:w-[min(600px,36vw)] min-[1024px]:flex-none min-[1024px]:border-l min-[1024px]:border-[#dad9d4] min-[1024px]:bg-white min-[1024px]:px-[72px] min-[1024px]:pb-[40px] min-[1024px]:pt-[44px]">
+        <div className="hidden h-[15px] w-full items-center justify-end gap-2 whitespace-nowrap text-[12px] leading-[15px] min-[1024px]:flex">
           <span className="font-normal text-[#686b73]">Need help?</span>
           <a href="#" className="font-medium text-[#03f] no-underline">
             Contact support
           </a>
         </div>
 
-        <div className="flex w-full flex-1 flex-col items-center justify-center min-[768px]:flex-none min-[768px]:justify-center">
+        <div className="flex w-full flex-1 flex-col items-center justify-center min-[1024px]:flex-none min-[1024px]:justify-center">
           <Routes>
             <Route path="/" element={loginForm} />
             <Route path="/login" element={loginForm} />

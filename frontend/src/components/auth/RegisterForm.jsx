@@ -111,7 +111,7 @@ function RegisterForm({ onRegister, onBackToLogin, isSubmitting = false, formErr
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex h-12 w-full items-center justify-center rounded-[8px] border-0 bg-[#03f] px-6 text-[14px] font-semibold leading-normal text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-12 w-full items-center justify-center rounded-[8px] border-0 bg-[#03f] px-6 text-[14px] font-semibold leading-normal text-white disabled:cursor-not-allowed disabled:opacity-60 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2652ff] hover:shadow-md active:translate-y-0 cursor-pointer"
           >
             {isSubmitting ? 'Registering…' : 'Register'}
           </button>
@@ -124,7 +124,7 @@ function RegisterForm({ onRegister, onBackToLogin, isSubmitting = false, formErr
 
           <button
             type="button"
-            className="flex h-12 w-full items-center justify-center gap-3 rounded-[8px] border border-[#dad9d4] bg-white px-6 text-[14px] font-medium text-[#17191f]"
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-[8px] border border-[#dad9d4] bg-white px-6 text-[14px] font-medium text-[#17191f] cursor-pointer transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#f5f5f2] hover:border-[#c8c7c2] hover:shadow-md active:translate-y-0"
           >
             <span className="text-[16px] font-semibold text-[#4285f4]">G</span>
             Continue with Google

@@ -44,9 +44,9 @@ function LoginForm({
       className="flex w-full flex-col items-center"
       aria-label="Login form"
     >
-      <div className="flex w-[430px] max-w-full flex-col gap-8">
-        <div data-responsive="introduction" className="flex h-[85px] w-full shrink-0 flex-col gap-3 overflow-hidden">
-          <h2 className="m-0 text-[42px] font-semibold leading-[50px] text-[#17191f]">
+      <div className="flex w-full max-w-[430px] shrink-0 flex-col gap-3">
+        <div data-responsive="introduction" className="flex min-h-[85px] w-full shrink-0 flex-col gap-3">
+          <h2 className="m-0 text-[32px] font-semibold leading-[38px] text-[#17191f] min-[1024px]:text-[42px] min-[1024px]:leading-[50px]">
             Welcome back!
           </h2>
           <p className="text-[15px] font-normal leading-[23px] text-[#686b73]">
@@ -147,7 +147,7 @@ function LoginForm({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex h-14 w-full items-center justify-center rounded-[12px] border-0 bg-[#03f] px-6 text-[15px] font-semibold leading-normal text-white"
+              className="flex h-14 w-full items-center justify-center rounded-[12px] border-0 bg-[#03f] px-6 text-[15px] font-semibold leading-normal text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2652ff] hover:shadow-md active:translate-y-0 cursor-pointer"
             >
               {isSubmitting ? 'Logging in…' : 'Log in'}
             </button>
@@ -162,7 +162,7 @@ function LoginForm({
             <button
               type="button"
               onClick={onGoogleSignIn}
-              className="flex h-14 w-full items-center justify-center gap-3 rounded-[12px] border border-[#dad9d4] bg-white px-6 text-[15px] font-medium leading-normal text-[#17191f]"
+              className="flex h-14 w-full items-center justify-center gap-3 rounded-[12px] border border-[#dad9d4] bg-white px-6 text-[15px] font-medium leading-normal text-[#17191f] cursor-pointer transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#f5f5f2] hover:border-[#c8c7c2] hover:shadow-md active:translate-y-0"
             >
               <span className="w-[19px] text-center text-[17px] font-semibold text-[#4285f4]">
                 G
