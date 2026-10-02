@@ -1,0 +1,149 @@
+import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
+
+function RegisterForm({ onRegister, onBackToLogin, isSubmitting = false, formError }) {
+  const [showPassword, setShowPassword] = useState(false)
+  const [formMessage, setFormMessage] = useState('')
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+  })
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((current) => ({ ...current, [name]: value }))
+    setFormMessage('')
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    if (isSubmitting) return
+
+    if (onRegister) {
+      onRegister({ ...formData })
+      return
+    }
+
+    setFormMessage('Form sudah tervalidasi, tetapi belum terhubung ke server.')
+  }
+
+  return (
+    <section
+      data-responsive="register-form"
+      className="flex w-full flex-col items-center"
+      aria-label="Register form"
+    >
+      <div className="flex w-[430px] max-w-full flex-col gap-8">
+        <div className="flex w-full shrink-0 flex-col gap-2">
+          <h2 className="m-0 text-[32px] font-semibold leading-[38px] text-[#17191f] min-[1024px]:text-[36px] min-[1024px]:leading-[44px]">
+            Get started
+          </h2>
+          <p className="text-[13px] font-normal leading-[20px] text-[#686b73]">
+            Enter your details to create your new account.
+          </p>
+        </div>
+
+        <form className="flex w-full flex-col gap-5" onSubmit={handleSubmit} aria-busy={isSubmitting}>
+          {(formError || formMessage) && (
+            <p className="text-[13px] font-medium leading-4 text-[#b42318]" role="alert">
+              {formError || formMessage}
+            </p>
+          )}
+
+          <div className="flex w-full flex-col gap-3">
+            <label className="flex flex-col gap-1.5 text-[13px] font-medium leading-4 text-[#17191f]">
+              <span>Name</span>
+              <input
+                type="text"
+                name="name"
+                autoComplete="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                className="h-12 w-full rounded-[10px] border border-[#dad9d4] bg-white px-4 text-[15px] font-normal leading-normal text-[#17191f] outline-none placeholder:text-[#8a8d94] focus:border-[#03f]"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-[13px] font-medium leading-4 text-[#17191f]">
+              <span>Email</span>
+              <input
+                type="email"
+                name="email"
+                autoComplete="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                className="h-12 w-full rounded-[10px] border border-[#dad9d4] bg-white px-4 text-[15px] font-normal leading-normal text-[#17191f] outline-none placeholder:text-[#8a8d94] focus:border-[#03f]"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-[13px] font-medium leading-4 text-[#17191f]">
+              <span>Password</span>
+              <span className="relative block h-12 w-full">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  className="h-12 w-full rounded-[10px] border border-[#dad9d4] bg-white px-4 pr-12 text-[15px] font-normal leading-normal text-[#17191f] outline-none placeholder:text-[#8a8d94] focus:border-[#03f]"
+                />
+                <button
+                  type="button"
+                  className="absolute right-4 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0 text-[#686b73]"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
+                  onClick={() => setShowPassword((current) => !current)}
+                >
+                  {showPassword ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
+                </button>
+              </span>
+            </label>
+
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex h-12 w-full items-center justify-center rounded-[8px] border-0 bg-[#03f] px-6 text-[14px] font-semibold leading-normal text-white disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSubmitting ? 'Registering…' : 'Register'}
+          </button>
+
+          <div className="flex items-center gap-3 text-[11px] text-[#8a8d94]" aria-label="Or continue with another method">
+            <span className="h-px flex-1 bg-[#e4e3df]" />
+            <span>or</span>
+            <span className="h-px flex-1 bg-[#e4e3df]" />
+          </div>
+
+          <button
+            type="button"
+            className="flex h-12 w-full items-center justify-center gap-3 rounded-[8px] border border-[#dad9d4] bg-white px-6 text-[14px] font-medium text-[#17191f]"
+          >
+            <span className="text-[16px] font-semibold text-[#4285f4]">G</span>
+            Continue with Google
+          </button>
+
+          <p className="w-full text-center text-[13px] font-normal leading-4 text-[#686b73]">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={onBackToLogin}
+              className="border-0 bg-transparent p-0 text-[13px] font-semibold leading-4 text-[#03f]"
+            >
+              Sign in
+            </button>
+          </p>
+        </form>
+      </div>
+    </section>
+  )
+}
+
+export default RegisterForm
