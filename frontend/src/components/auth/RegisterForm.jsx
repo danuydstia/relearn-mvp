@@ -135,7 +135,7 @@ function RegisterForm({ onRegister, onBackToLogin, isSubmitting = false, formErr
             <button
               type="button"
               onClick={onBackToLogin}
-              className="border-0 bg-transparent p-0 text-[13px] font-semibold leading-4 text-[#03f]"
+              className="border-0 bg-transparent p-0 text-[13px] font-semibold leading-4 text-[#03f] cursor-pointer"
             >
               Sign in
             </button>

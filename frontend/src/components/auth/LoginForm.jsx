@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { EyeOff } from 'lucide-react'
-import eyeIcon from '../../assets/eye.svg'
+import { Eye, EyeOff} from 'lucide-react'
 
 function firstMessage(error) {
   if (Array.isArray(error)) return error[0]
@@ -115,15 +114,15 @@ function LoginForm({
                 />
                 <button
                   type="button"
-                  className="absolute right-4 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0"
+                  className="absolute right-4 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0 text-[#686b73]"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   aria-pressed={showPassword}
                   onClick={() => setShowPassword((current) => !current)}
                 >
                   {showPassword ? (
-                    <EyeOff size={20} strokeWidth={1.5} className="text-[#686b73]" />
+                    <EyeOff size={20} strokeWidth={1.5} />
                   ) : (
-                    <img src={eyeIcon} alt="" className="size-5" />
+                    <Eye size={20} strokeWidth={1.5} />
                   )}
                 </button>
               </span>
@@ -137,7 +136,7 @@ function LoginForm({
             <button
               type="button"
               onClick={onForgotPassword}
-              className="h-4 w-full border-0 bg-transparent p-0 text-right text-[13px] font-medium leading-4 text-[#03f]"
+              className="h-4 w-full border-0 bg-transparent p-0 text-right text-[13px] font-medium leading-4 text-[#03f] cursor-pointer"
             >
               Forgot password?
             </button>
@@ -176,7 +175,7 @@ function LoginForm({
             <button
               type="button"
               onClick={onCreateAccount}
-              className="border-0 bg-transparent p-0 text-[13px] font-semibold leading-4 text-[#03f]"
+              className="border-0 bg-transparent p-0 text-[13px] font-semibold leading-4 text-[#03f] cursor-pointer"
             >
               Create an account.
             </button>
