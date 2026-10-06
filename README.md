@@ -145,6 +145,10 @@ php artisan install:api
 
 Lalu buka `app/Models/User.php` dan pastikan model tersebut memakai trait `Laravel\Sanctum\HasApiTokens` agar token bisa dibuat untuk user.
 
+konfigurasi google auth
+
+
+
 ### 3.3 Frontend
 
 Kembali ke root repository, lalu buat aplikasi React dengan Vite:
@@ -348,6 +352,182 @@ Aturan untuk file environment:
 Untuk saat ini project memakai **Laravel Sanctum dengan bearer token**: frontend login, menerima token, lalu mengirimkannya lewat header `Authorization: Bearer`. Cara ini cocok karena frontend dan backend berjalan di port yang berbeda, dan tidak butuh konfigurasi cookie atau CSRF tambahan saat development.
 
 Jika nanti tim beralih ke autentikasi SPA berbasis cookie, dibutuhkan pengaturan Sanctum stateful domains, credentials pada konfigurasi CORS, dan `withCredentials` di axios. Catat keputusannya di sini jika berubah.
+
+##  Setup Google OAuth
+
+### Prasyarat
+
+- Akun Google (boleh akun pribadi atau akun khusus project)
+- Akses ke [Google Cloud Console](https://console.cloud.google.com/)
+
+> **Catatan:** Untuk development, akun pribadi sudah cukup. Untuk production, disarankan pakai akun Google khusus project (misal `relearn.dev@gmail.com`) agar email pribadi tidak terekspos ke user.
+
+### 1 Buat Project di Google Cloud Console
+
+1. Buka [Google Cloud Console](https://console.cloud.google.com/)
+2. Login dengan akun Google
+3. Klik dropdown project di atas → **NEW PROJECT**
+4. Isi:
+   - **Project name**: `ReLearn`
+   - **Location**: `No organization` (kecuali kamu punya Google Workspace)
+5. Klik **CREATE**
+6. Tunggu beberapa detik, lalu **pilih project** yang baru dibuat
+
+### 2 Setup OAuth Consent Screen
+
+1. Di sidebar kiri, buka **APIs & Services** → **OAuth consent screen**
+2. Pilih **User Type**:
+   - **External** ← pilih ini untuk development
+   - Internal (hanya jika kamu punya Google Workspace)
+3. Klik **CREATE**
+4. Isi **App Information**:
+   - **App name**: `ReLearn`
+   - **User support email**: pilih emailmu dari dropdown
+5. Isi **Developer contact information**:
+   - **Email addresses**: emailmu
+6. Klik **SAVE AND CONTINUE**
+7. Di step **Scopes**, klik **SAVE AND CONTINUE** (biarkan default)
+8. Di step **Test users**, klik **SAVE AND CONTINUE** (kita tambahkan nanti)
+9. Di step **Summary**, klik **BACK TO DASHBOARD**
+
+### 3 Tambahkan Test Users (WAJIB!)
+
+Selama OAuth masih berstatus **Testing**, hanya akun yang terdaftar sebagai Test Users yang bisa login. Tanpa langkah ini, login Google akan gagal dengan error `access_denied`.
+
+1. Masih di halaman **OAuth consent screen**
+2. Scroll ke bagian **Test users**
+3. Klik **+ ADD USERS**
+4. Masukkan **email Google yang akan dipakai login** (emailmu sendiri, dan email anggota tim)
+5. Klik **SAVE**
+
+> **Untuk tim:** Setiap anggota yang mau testing login Google harus ditambahkan di sini.
+
+### 4 Buat OAuth Client ID
+
+1. Di sidebar kiri, buka **APIs & Services** → **Credentials**
+2. Klik **+ CREATE CREDENTIALS** di atas → pilih **OAuth client ID**
+3. **Application type**: pilih **Web application**
+4. **Name**: `ReLearn Web` (atau nama bebas)
+5. Di bagian **Authorized JavaScript origins**, klik **+ ADD URI**, isi:
+   ```
+   http://localhost:5173
+   ```
+6. Di bagian **Authorized redirect URIs**, klik **+ ADD URI**, isi:
+   ```
+   http://localhost:8000/api/v1/auth/google/callback
+   ```
+7. Klik **CREATE**
+
+### 5 Salin Client ID & Client Secret
+
+Setelah klik **CREATE**, akan muncul popup berisi:
+
+- **Client ID** — contoh: `123456789-abc.apps.googleusercontent.com`
+- **Client Secret** — contoh: `GOCSPX-xxxxxxxxxxxxxxxx`
+
+**Salin keduanya sekarang.** Client Secret hanya ditampilkan sekali.
+
+> **Kalau lupa menyimpan:** Buka **Credentials** → klik OAuth Client ID-mu → klik **RESET SECRET** untuk generate secret baru.
+
+### 6 Isi `.env` Laravel
+
+1. Copy `backend/.env.example` menjadi `backend/.env` (kalau belum ada):
+   ```bash
+   cd backend
+   copy .env.example .env
+   ```
+   (Git Bash: `cp .env.example .env`)
+
+2. Buka `backend/.env`, isi:
+   ```env
+   GOOGLE_CLIENT_ID=123456789-abc.apps.googleusercontent.com
+   GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxxxxxx
+   GOOGLE_REDIRECT_URI=http://localhost:8000/api/v1/auth/google/callback
+   FRONTEND_URL=http://localhost:5173
+   ```
+
+3. Clear config cache:
+   ```bash
+   php artisan config:clear
+   ```
+
+4. Restart backend (`Ctrl+C` di terminal `php artisan serve`, lalu jalankan lagi).
+
+
+
+## Install CA Certificate (Windows)
+
+Tanpa CA certificate, PHP akan gagal verifikasi SSL saat mengakses API Google, dengan error:
+
+```
+cURL error 60: SSL certificate problem: unable to get local issuer certificate
+```
+
+### 2.1 Cek Lokasi PHP
+
+Jalankan di terminal:
+
+```bash
+php --ini
+```
+
+Output menunjukkan lokasi `php.ini`, contoh:
+```
+Loaded Configuration File: C:\php\php-8.4.26\php.ini
+```
+
+Catat folder PHP-nya (contoh: `C:\php\php-8.4.26`).
+
+### 2.2 Download `cacert.pem`
+
+**Cara A — Manual:**
+1. Buka https://curl.se/ca/cacert.pem
+2. Klik kanan di halaman → **Save As...**
+3. Simpan ke: `C:\php\php-8.4.26\extras\ssl\cacert.pem`
+   (buat folder `extras\ssl` dulu jika belum ada)
+
+> Sesuaikan path `C:\php\php-8.4.26` dengan lokasi PHP-mu.
+
+
+### 2.3 Edit `php.ini`
+
+1. Buka `php.ini` dengan Notepad atau VS Code (jalankan sebagai Administrator jika perlu)
+2. Cari baris `;curl.cainfo =` (biasanya nonaktif dengan `;` di depan)
+3. Ubah menjadi:
+   ```ini
+   curl.cainfo = "C:\php\php-8.4.26\extras\ssl\cacert.pem"
+   ```
+4. Cari baris `;openssl.cafile =`
+5. Ubah menjadi:
+   ```ini
+   openssl.cafile = "C:\php\php-8.4.26\extras\ssl\cacert.pem"
+   ```
+6. **Save** file
+
+### 2.4 Restart Terminal & Backend
+
+1. **Tutup semua terminal** (CMD, PowerShell, VS Code, terminal `php artisan serve`)
+2. Buka terminal baru
+3. Cek konfigurasi:
+   ```bash
+   php -i | findstr "cainfo cafile"
+   ```
+   Harus muncul:
+   ```
+   curl.cainfo => C:\php\php-8.4.26\extras\ssl\cacert.pem
+   openssl.cafile => C:\php\php-8.4.26\extras\ssl\cacert.pem
+   ```
+4. Jalankan backend:
+   ```bash
+   cd backend
+   php artisan config:clear
+   php artisan serve
+   ```
+
+
+
+
+
 
 ## 8. Menjalankan Aplikasi
 
