@@ -400,7 +400,6 @@ Selama OAuth masih berstatus **Testing**, hanya akun yang terdaftar sebagai Test
 4. Masukkan **email Google yang akan dipakai login** (emailmu sendiri, dan email anggota tim)
 5. Klik **SAVE**
 
-> **Untuk tim:** Setiap anggota yang mau testing login Google harus ditambahkan di sini.
 
 ### 4 Buat OAuth Client ID
 
@@ -463,7 +462,7 @@ Tanpa CA certificate, PHP akan gagal verifikasi SSL saat mengakses API Google, d
 cURL error 60: SSL certificate problem: unable to get local issuer certificate
 ```
 
-### 2.1 Cek Lokasi PHP
+### 1 Cek Lokasi PHP
 
 Jalankan di terminal:
 
@@ -478,7 +477,7 @@ Loaded Configuration File: C:\php\php-8.4.26\php.ini
 
 Catat folder PHP-nya (contoh: `C:\php\php-8.4.26`).
 
-### 2.2 Download `cacert.pem`
+### 2 Download `cacert.pem`
 
 **Cara A — Manual:**
 1. Buka https://curl.se/ca/cacert.pem
@@ -489,7 +488,7 @@ Catat folder PHP-nya (contoh: `C:\php\php-8.4.26`).
 > Sesuaikan path `C:\php\php-8.4.26` dengan lokasi PHP-mu.
 
 
-### 2.3 Edit `php.ini`
+### 3 Edit `php.ini`
 
 1. Buka `php.ini` dengan Notepad atau VS Code (jalankan sebagai Administrator jika perlu)
 2. Cari baris `;curl.cainfo =` (biasanya nonaktif dengan `;` di depan)
@@ -504,7 +503,7 @@ Catat folder PHP-nya (contoh: `C:\php\php-8.4.26`).
    ```
 6. **Save** file
 
-### 2.4 Restart Terminal & Backend
+### 4 Restart Terminal & Backend
 
 1. **Tutup semua terminal** (CMD, PowerShell, VS Code, terminal `php artisan serve`)
 2. Buka terminal baru
