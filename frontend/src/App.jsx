@@ -1,24 +1,146 @@
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Star } from 'lucide-react'
 import bookOpenIcon from './assets/book-open.svg'
 import sparklesIcon from './assets/sparkles.svg'
 import LoginForm from './components/auth/LoginForm.jsx'
 import RegisterForm from './components/auth/RegisterForm.jsx'
+import { useAuth } from './contexts/AuthContext'
+
+// ─── Inline handler untuk Google callback (tanpa halaman terpisah) ───
+function GoogleCallbackHandler() {
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const auth = useAuth()
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const token = searchParams.get('token')
+    const status = searchParams.get('status')
+    const message = searchParams.get('message')
+
+    if (status === 'error') {
+      setError(message || 'Google authentication failed')
+      const t = setTimeout(() => navigate('/login'), 2500)
+      return () => clearTimeout(t)
+    }
+
+    if (!token) {
+      navigate('/login')
+      return
+    }
+
+    auth.fetchUser(token)
+      .then(() => navigate('/dashboard'))
+      .catch(() => {
+        setError('Gagal memproses login Google')
+        const t = setTimeout(() => navigate('/login'), 2500)
+        return () => clearTimeout(t)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  return (
+    <div className="flex flex-col items-center gap-3 text-center">
+      {error ? (
+        <>
+          <p className="text-[14px] font-medium text-[#b42318]">{error}</p>
+          <p className="text-[12px] text-[#686b73]">Mengalihkan ke halaman login…</p>
+        </>
+      ) : (
+        <>
+          <div className="size-8 animate-spin rounded-full border-2 border-[#dde3ff] border-t-[#03f]" />
+          <p className="text-[14px] font-medium text-[#17191f]">Memproses login Google…</p>
+        </>
+      )}
+    </div>
+  )
+}
 
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
+  const auth = useAuth()
+
   const isRegisterPage = location.pathname === '/register'
-  const loginForm = <LoginForm onCreateAccount={() => navigate('/register')} />
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [successMessage, setSuccessMessage] = useState('')
+
+  const handleLogin = async ({ email, password }) => {
+    setIsSubmitting(true)
+    setFormError('')
+    setFieldErrors({})
+    try {
+      await auth.login({ email, password })
+      navigate('/dashboard')
+    } catch (err) {
+      const res = err.response
+      if (res?.status === 422) {
+        setFieldErrors(res.data.errors || {})
+        const first = Object.values(res.data.errors || {})[0]
+        setFormError(Array.isArray(first) ? first[0] : first)
+      } else {
+        setFormError(res?.data?.message || 'Login gagal. Coba lagi.')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleRegister = async ({ name, email, password }) => {
+    setIsSubmitting(true)
+    setFormError('')
+    setFieldErrors({})
+    try {
+      await auth.register({ name, email, password })
+      navigate('/dashboard')
+    } catch (err) {
+      const res = err.response
+      if (res?.status === 422) {
+        setFieldErrors(res.data.errors || {})
+        const first = Object.values(res.data.errors || {})[0]
+        setFormError(Array.isArray(first) ? first[0] : first)
+      } else {
+        setFormError(res?.data?.message || 'Registrasi gagal. Coba lagi.')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleGoogleSignIn = () => {
+    auth.loginWithGoogle()
+  }
+
+  const loginForm = (
+    <LoginForm
+      onLogin={handleLogin}
+      onGoogleSignIn={handleGoogleSignIn}
+      onCreateAccount={() => navigate('/register')}
+      isSubmitting={isSubmitting}
+      formError={formError}
+      fieldErrors={fieldErrors}
+      successMessage={successMessage}
+    />
+  )
+
+  const registerForm = (
+    <RegisterForm
+      onRegister={handleRegister}
+      onGoogleSignIn={handleGoogleSignIn}
+      onBackToLogin={() => navigate('/login')}
+      isSubmitting={isSubmitting}
+      formError={formError}
+    />
+  )
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-[#f8f7f3] px-6 pb-6 pt-7 font-[Montserrat] text-[#17191f] min-[1024px]:flex-row min-[1024px]:p-0">
       <header className="flex h-6 shrink-0 items-center justify-between min-[1024px]:hidden">
-        <img
-          src="/relearn-full-logo.svg"
-          alt="Re:Learn"
-          className="h-6 w-auto"
-        />
+        <img src="/relearn-full-logo.svg" alt="Re:Learn" className="h-6 w-auto" />
         <a href="#" className="text-[12px] font-medium text-[#03f] no-underline">
           Help
         </a>
@@ -145,9 +267,25 @@ function App() {
           <Routes>
             <Route path="/" element={loginForm} />
             <Route path="/login" element={loginForm} />
+            <Route path="/register" element={registerForm} />
+            <Route path="/auth/google-callback" element={<GoogleCallbackHandler />} />
             <Route
-              path="/register"
-              element={<RegisterForm onBackToLogin={() => navigate('/login')} />}
+              path="/dashboard"
+              element={
+                <div className="flex flex-col items-center gap-4 text-center">
+                  <h1 className="text-2xl font-semibold">Dashboard</h1>
+                  <p>Selamat datang, {auth.user?.name}!</p>
+                  <button
+                    onClick={async () => {
+                      await auth.logout()
+                      navigate('/login')
+                    }}
+                    className="rounded bg-[#03f] px-4 py-2 text-white cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                </div>
+              }
             />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>

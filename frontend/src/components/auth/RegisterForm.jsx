@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
-function RegisterForm({ onRegister, onBackToLogin, isSubmitting = false, formError }) {
+function RegisterForm({ onRegister, onGoogleSignIn, onBackToLogin, isSubmitting = false, formError }) {
   const [showPassword, setShowPassword] = useState(false)
-  const [formMessage, setFormMessage] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,19 +12,18 @@ function RegisterForm({ onRegister, onBackToLogin, isSubmitting = false, formErr
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((current) => ({ ...current, [name]: value }))
-    setFormMessage('')
   }
 
   const handleSubmit = (event) => {
     event.preventDefault()
     if (isSubmitting) return
 
-    if (onRegister) {
-      onRegister({ ...formData })
-      return
-    }
-
-    setFormMessage('Form sudah tervalidasi, tetapi belum terhubung ke server.')
+    onRegister({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      password_confirmation: formData.password,
+    })
   }
 
   return (
@@ -45,9 +43,9 @@ function RegisterForm({ onRegister, onBackToLogin, isSubmitting = false, formErr
         </div>
 
         <form className="flex w-full flex-col gap-5" onSubmit={handleSubmit} aria-busy={isSubmitting}>
-          {(formError || formMessage) && (
+          {formError && (
             <p className="text-[13px] font-medium leading-4 text-[#b42318]" role="alert">
-              {formError || formMessage}
+              {formError}
             </p>
           )}
 
@@ -105,7 +103,6 @@ function RegisterForm({ onRegister, onBackToLogin, isSubmitting = false, formErr
                 </button>
               </span>
             </label>
-
           </div>
 
           <button
@@ -124,6 +121,7 @@ function RegisterForm({ onRegister, onBackToLogin, isSubmitting = false, formErr
 
           <button
             type="button"
+            onClick={onGoogleSignIn}
             className="flex h-12 w-full items-center justify-center gap-3 rounded-[8px] border border-[#dad9d4] bg-white px-6 text-[14px] font-medium text-[#17191f] cursor-pointer transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#f5f5f2] hover:border-[#c8c7c2] hover:shadow-md active:translate-y-0"
           >
             <span className="text-[16px] font-semibold text-[#4285f4]">G</span>
