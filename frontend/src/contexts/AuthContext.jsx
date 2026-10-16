@@ -79,6 +79,16 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  /**
+   * Development-only: switch the current user's plan without billing.
+   * Backed by the local-only `/dev/plan` route.
+   */
+  const updatePlan = async (plan) => {
+    const res = await api.put('/dev/plan', { plan })
+    setUser(res.data)
+    return res.data
+  }
+
   const value = {
     user,
     token,
@@ -89,6 +99,7 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     fetchUser,
     logout,
+    updatePlan,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -1,5 +1,40 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────
+   Re:Learn design tokens (mapped from the Figma design system)
+   Keep exact hex values — these mirror the Figma variables so
+   screens render 1:1 with the design.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: Montserrat, ui-sans-serif, system-ui, sans-serif;
+
+  /* Text */
+  --color-ink: #17191f;
+  --color-muted: #686b73;
+  --color-subtle: #8a8d94;
+
+  /* Surfaces & lines */
+  --color-line: #dad9d4;
+  --color-canvas: #f8f7f3;
+  --color-neutral-soft: #f2f1ec;
+
+  /* Brand */
+  --color-brand: #0033ff;
+  --color-brand-hover: #2652ff;
+  --color-brand-soft: #eef1ff;
+  --color-brand-border: #dde3ff;
+
+  /* Status */
+  --color-danger: #b42318;
+  --color-success: #067647;
+  --color-warning: #e0aa00;
+
+  /* Radii */
+  --radius-control: 6px;
+  --radius-field: 12px;
+  --radius-card: 12px;
+}
+
 :root {
   font-family: Montserrat, sans-serif;
   line-height: 1;

@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:dashboard": "node scripts/verify-dashboard.mjs",
+    "measure:dashboard": "node scripts/measure-dashboard.mjs",
+    "verify:plan": "node scripts/verify-plan.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -27,6 +30,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.6",
     "globals": "^17.12.0",
+    "playwright": "^1.64.1",
     "vite": "^8.3.0"
   }
 }

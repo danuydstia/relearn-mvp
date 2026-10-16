@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -14,6 +15,7 @@ use Laravel\Sanctum\HasApiTokens;
     'email',
     'password',
     'role',
+    'plan',
     'provider',
     'provider_id',
     'avatar',
@@ -30,7 +32,25 @@ class User extends Authenticatable
 
     // Konstanta role
     const ROLE_ADMIN = 'admin';
+
     const ROLE_STUDENT = 'student';
+
+    // Konstanta plan
+    const PLAN_FREE = 'free';
+
+    const PLAN_PRO = 'pro';
+
+    /**
+     * The model's default attribute values.
+     *
+     * Mirrors the `users.plan` column default so freshly instantiated models
+     * (registration responses, factory-made models) already report their plan.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'plan' => self::PLAN_FREE,
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -43,6 +63,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // ============ Relations ============
+
+    public function materials(): HasMany
+    {
+        return $this->hasMany(Material::class);
     }
 
     // ============ Helper Methods ============
@@ -60,5 +87,10 @@ class User extends Authenticatable
     public function hasRole(string $role): bool
     {
         return $this->role === $role;
+    }
+
+    public function isPro(): bool
+    {
+        return $this->plan === self::PLAN_PRO;
     }
 }
