@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -53,6 +55,13 @@ class User extends Authenticatable
     ];
 
     /**
+     * Atribut virtual yang ikut keluar di JSON.
+     *
+     * @var list<string>
+     */
+    protected $appends = ['avatar_url'];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -63,6 +72,27 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * URL penuh avatar: foto Google (URL) atau file upload lokal (path di disk public).
+     */
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::get(function (): ?string {
+            $avatar =$this->avatar;
+
+            if (! $avatar) {
+                return null;
+            }
+
+            if (str_starts_with($avatar, 'http')) {
+                // foto Google: naikin resolusi dari s96 ke s256 biar nggak pecah di 52px
+                return preg_replace('/=s\d+-c$/', '=s256-c',$avatar);
+            }
+
+            return asset($avatar);
+        });
     }
 
     // ============ Relations ============
@@ -86,7 +116,7 @@ class User extends Authenticatable
 
     public function hasRole(string $role): bool
     {
-        return $this->role === $role;
+        return $this->role ===$role;
     }
 
     public function isPro(): bool

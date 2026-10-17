@@ -26,6 +26,7 @@ Route::prefix('v1')->group(function () {
 
         // Profile — the display name shown on the Profile screen.
         Route::patch('/profile', [ProfileController::class, 'update']);
+        Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar']);
 
         // Material
         Route::get('/materials', [MaterialController::class, 'index']);

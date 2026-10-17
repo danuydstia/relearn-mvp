@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -21,14 +22,38 @@ class ProfileController extends Controller
      */
     public function update(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $validated =$request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        $user = $request->user();
-        $user->name = $validated['name'];
-        $user->save();
+        $user = $request->user();$user->name = $validated['name'];$user->save();
 
         return response()->json($user);
+    }
+
+    /**
+     * Upload and update the authenticated student's avatar.
+     */
+    public function updateAvatar(Request $request): JsonResponse
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        $user =$request->user();
+
+        // hapus file lama kalau lokal (bukan URL Google)
+        if ($user->avatar && ! str_starts_with($user->avatar, 'http')) {
+            @unlink(public_path($user->avatar));
+        }
+
+        $file =$request->file('avatar');
+        $filename =$file->hashName();
+        $file->move(public_path('avatars'),$filename);
+
+        $user->avatar = 'avatars/' .$filename;
+        $user->save();
+
+        return response()->json(['avatar_url' => $user->avatar_url]);
     }
 }

@@ -16,6 +16,7 @@ import { useAuth } from '../contexts/AuthContext'
  */
 export default function ProfilePage() {
   const { user } = useAuth()
+  console.log('user:', user)
   const name = user?.name || 'Student'
 
   return (
@@ -30,7 +31,7 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        <IdentityCard name={name} />
+        <IdentityCard name={name} avatar={user?.avatar_url} />
 
         {/* Learning highlights — stacked at 32/28px on mobile, two equal
             columns from 768px. */}

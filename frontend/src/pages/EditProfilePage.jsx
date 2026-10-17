@@ -20,13 +20,9 @@ import { useAuth } from '../contexts/AuthContext'
  * - Saved: a "Profile updated" pill above the identity header, then return to
  *   Profile.
  * - Failed: the shared error card, keeping the entered name on screen.
- *
- * The avatar row is deliberately inert: the spec states name editing and
- * "Change avatar" are proposals, that no upload behaviour is defined, and to
- * keep the current avatar.
  */
 export default function EditProfilePage() {
-  const { user, updateProfile } = useAuth()
+  const { user, updateProfile, updateAvatar } = useAuth()
   const navigate = useNavigate()
 
   const [name, setName] = useState(user?.name ?? '')
@@ -36,12 +32,35 @@ export default function EditProfilePage() {
   const [error, setError] = useState('')
   const redirectRef = useRef(null)
 
+  const fileRef = useRef(null)
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarPreview, setAvatarPreview] = useState(null)
+  const [avatarError, setAvatarError] = useState('')
+
+  useEffect(
+    () => () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview)
+    },
+    [avatarPreview],
+  )
+
   const trimmed = name.trim()
   const isValid = trimmed.length > 0
   const showFieldError = touched && !isValid
   const previewName = trimmed || user?.name || 'Student'
 
   useEffect(() => () => clearTimeout(redirectRef.current), [])
+
+  const handleAvatarFile = (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = '' // biar bisa pilih file yang sama lagi
+    if (!file) return
+    if (!file.type.startsWith('image/')) return setAvatarError('File harus berupa gambar.')
+    if (file.size > 2 * 1024 * 1024) return setAvatarError('Ukuran maksimal 2MB.')
+    setAvatarError('')
+    setAvatarFile(file) // disimpan dulu, di-upload saat Save
+    setAvatarPreview(URL.createObjectURL(file))
+  }
 
   const submit = async () => {
     setTouched(true)
@@ -51,11 +70,16 @@ export default function EditProfilePage() {
     setError('')
     try {
       await updateProfile({ name: trimmed })
+      if (avatarFile) {
+        await updateAvatar(avatarFile)
+        setAvatarFile(null)
+        setAvatarPreview(null)
+      }
       setSaved(true)
       redirectRef.current = setTimeout(() => navigate('/profile'), 1200)
     } catch (err) {
       const res = err.response
-      const first = res?.data?.errors?.name?.[0]
+      const first = res?.data?.errors?.name?.[0] || res?.data?.errors?.avatar?.[0]
       setError(first || res?.data?.message || "Your profile couldn't be saved.")
     } finally {
       setSubmitting(false)
@@ -130,14 +154,34 @@ export default function EditProfilePage() {
                   Avatar
                 </p>
                 <div className="flex w-full items-center gap-4">
-                  <Avatar name={previewName} />
+                  <Avatar name={previewName} src={avatarPreview || user?.avatar_url} size={52} />
                   <div className="flex min-w-px flex-1 flex-col gap-0.5">
-                    <span className="flex h-11 items-center text-[13px] leading-[normal] font-medium text-[#0033ff]">
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      disabled={submitting}
+                      className="flex h-11 items-center self-start text-[13px] leading-[normal] font-medium text-[#0033ff] transition-colors hover:text-[#0026cc] hover:underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
                       Change avatar
-                    </span>
-                    <p className="text-[11px] leading-[1.5] font-normal text-[#686b73]">
-                      Optional · Proposed update
-                    </p>
+                    </button>
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={handleAvatarFile}
+                    />
+                    {avatarError ? (
+                      <p role="alert" className="text-[11px] leading-[1.5] font-normal text-[#a53932]">
+                        {avatarError}
+                      </p>
+                    ) : (
+                      <p className="text-[11px] leading-[1.5] font-normal text-[#686b73]">
+                        {avatarFile
+                          ? 'Foto baru akan disimpan saat kamu klik Save'
+                          : 'Optional · JPG, PNG, atau WebP, maks 2MB'}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -91,6 +91,17 @@ export function AuthProvider({ children }) {
   }
 
   /**
+   * Upload foto profil. Server menyimpan file lalu mengembalikan avatar_url penuh.
+   */
+  const updateAvatar = async (file) => {
+    const body = new FormData()
+    body.append('avatar', file)
+    const res = await api.post('/profile/avatar', body)
+    setUser((u) => ({ ...u, avatar_url: res.data.avatar_url }))
+    return res.data
+  }
+
+  /**
    * Development-only: switch the current user's plan without billing.
    * Backed by the local-only `/dev/plan` route.
    */
@@ -111,6 +122,7 @@ export function AuthProvider({ children }) {
     fetchUser,
     logout,
     updateProfile,
+    updateAvatar,
     updatePlan,
   }
 

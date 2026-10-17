@@ -34,7 +34,7 @@ export default function TopBar({ title = 'Dashboard' }) {
         <p className="hidden text-[13px] font-medium whitespace-nowrap text-[#17191f] md:block">
           {name}
         </p>
-        <Avatar name={name} />
+        <Avatar name={name} src={user?.avatar_url} />
       </Link>
     </header>
   )
