@@ -5,16 +5,24 @@ import RecentLearning from '../components/dashboard/RecentLearning.jsx'
 import LearningPerformance from '../components/dashboard/LearningPerformance.jsx'
 import YourCommunity from '../components/dashboard/YourCommunity.jsx'
 import ProgressAchievements from '../components/dashboard/ProgressAchievements.jsx'
+import AccountUsage from '../components/dashboard/AccountUsage.jsx'
 import { ACCEPTED_MATERIAL_TYPES, listMaterials, uploadMaterial } from '../lib/materials'
 
 /**
- * DashboardPage — "Learning home" (design node 2:7899).
- * Left column: Continue Learning + Recent Learning.
- * Right column: Learning Performance, Your Community, progress highlights.
+ * DashboardPage — "Learning home" (design 2:7899), mobile 2:6354, tablet 2:6913.
  *
- * Batch 1: the learning-path / performance / community blocks are the
- * design's illustrative content. Material upload is wired to the API, and
- * the designed "no content" state shows when the user has no materials.
+ * Desktop (≥1024px): 40px gutters, the invitation spans the width, then a left
+ *   learning column (Continue + Recent) beside a 340px reflection rail
+ *   (Performance, Community, Progress). The AI-usage block lives in the sidebar.
+ * Tablet (768–1023px): 32px gutters, everything stacks in one 808px column, but
+ *   the reflection group splits into two 392px columns — Performance beside
+ *   Community-over-Progress. AI usage becomes a card in the page flow.
+ * Mobile (<768px): 24px gutters, a single 342px column throughout, 30px heading,
+ *   and a footer note closing the page.
+ *
+ * The learning-path / performance / community blocks are the design's
+ * illustrative content. Material upload is wired to the API, and the designed
+ * "no content" state shows when the user has no materials.
  */
 export default function DashboardPage() {
   const fileInputRef = useRef(null)
@@ -56,7 +64,7 @@ export default function DashboardPage() {
   const hasNoMaterials = Array.isArray(materials) && materials.length === 0
 
   return (
-    <div className="flex w-full flex-col gap-8 px-10 pt-10 pb-10">
+    <div className="flex w-full flex-col gap-8 px-6 pt-7 pb-8 md:px-8 md:py-8 lg:px-10 lg:py-10">
       <LearningInvitation onNewSession={openUploadPicker} />
 
       {uploadError && (
@@ -65,8 +73,9 @@ export default function DashboardPage() {
         </p>
       )}
 
-      <div className="flex w-full items-start gap-7">
-        <div className="flex min-w-0 flex-1 flex-col gap-7">
+      <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-start lg:gap-7">
+        {/* Learning column */}
+        <div className="flex w-full min-w-0 flex-col gap-8 lg:flex-1 lg:gap-7">
           <ContinueLearning />
           <RecentLearning
             showEmptyState={hasNoMaterials}
@@ -75,12 +84,22 @@ export default function DashboardPage() {
           />
         </div>
 
-        <div className="flex w-[340px] shrink-0 flex-col gap-7">
+        {/* Reflection group — two equal columns on tablet, one 340px rail on desktop. */}
+        <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 md:items-start md:gap-6 lg:flex lg:w-[340px] lg:shrink-0 lg:flex-col lg:gap-7">
           <LearningPerformance />
-          <YourCommunity />
-          <ProgressAchievements />
+          <div className="flex w-full flex-col gap-8 md:gap-6 lg:gap-7">
+            <YourCommunity />
+            <ProgressAchievements />
+          </div>
         </div>
       </div>
+
+      {/* Below 1024px the sidebar's AI-usage block and the design-review note
+          move into the page flow (design 2:7093 / 2:7102). */}
+      <AccountUsage className="lg:hidden" />
+      <p className="w-full text-[11px] leading-[1.5] font-normal text-[#686b73] lg:hidden">
+        Example student data · For design review only
+      </p>
 
       <input
         ref={fileInputRef}

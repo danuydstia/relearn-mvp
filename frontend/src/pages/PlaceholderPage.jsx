@@ -4,7 +4,7 @@
  */
 export default function PlaceholderPage({ title, description }) {
   return (
-    <div className="flex w-full flex-col gap-4 px-10 pt-10 pb-10">
+    <div className="flex w-full flex-col gap-4 px-6 pt-7 pb-8 md:px-8 md:py-8 lg:px-10 lg:py-10">
       <h1 className="text-[28px] leading-[normal] font-semibold text-[#17191f]">{title}</h1>
       {description && (
         <p className="max-w-[640px] text-[14px] leading-[1.5] font-normal text-[#686b73]">{description}</p>

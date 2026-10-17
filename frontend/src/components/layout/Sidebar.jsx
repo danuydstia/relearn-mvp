@@ -1,56 +1,21 @@
 import { NavLink } from 'react-router-dom'
-import {
-  Award,
-  BookOpen,
-  ChartNoAxesCombined,
-  ClipboardCheck,
-  Files,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  Trophy,
-  Users,
-} from 'lucide-react'
 import SubscriptionBadge from '../ui/SubscriptionBadge.jsx'
 import { useAuth } from '../../contexts/AuthContext'
+import { NAV_GROUPS } from '../../lib/navigation'
 
 /**
  * Sidebar — design node 2:7900 ("Re:Learn/Sidebar").
- * 232px wide, white, right border #dad9d4, 44px nav items, 6px radius,
- * active item bg #eef1ff / text #03f. Icons map 1:1 to Lucide.
+ * Desktop (≥1024px): 232px, wordmark, group labels, icon + label items,
+ *   account-usage block pinned below the nav.
+ * Tablet (768–1023px, design 2:6872): 88px, "R" mark, icon-only items with no
+ *   group labels and no account-usage block — that block moves into the page.
+ * Mobile (<768px): not rendered at all; the mobile tab bar takes over.
  *
  * Note: the "Log out" action below Settings is an addition on top of the
  * design, which only lists Settings under Account.
  */
-const NAV_GROUPS = [
-  {
-    label: 'Learn',
-    items: [
-      { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
-      { to: '/learning', label: 'My Learning', icon: BookOpen },
-      { to: '/materials', label: 'Materials', icon: Files },
-      { to: '/quizzes', label: 'Quizzes', icon: ClipboardCheck },
-      { to: '/communities', label: 'Communities', icon: Users },
-    ],
-  },
-  {
-    label: 'Your progress',
-    items: [
-      { to: '/progress', label: 'Progress', icon: ChartNoAxesCombined },
-      { to: '/achievements', label: 'Achievements', icon: Award },
-      { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-    ],
-  },
-  {
-    label: 'Account',
-    items: [{ to: '/settings', label: 'Settings', icon: Settings }],
-    action: { label: 'Log out', icon: LogOut },
-  },
-]
-
-/** Shared nav-item geometry, so links and actions line up exactly. */
 const NAV_ITEM_BASE =
-  'flex h-11 w-full items-center gap-3 rounded-[6px] px-3 text-[13px] font-medium transition-colors duration-150 ease-out cursor-pointer'
+  'flex h-11 w-full items-center justify-center rounded-[6px] text-[13px] font-medium transition-colors duration-150 ease-out cursor-pointer lg:justify-start lg:gap-3 lg:px-3'
 
 /** Link styling — the active item picks up the brand tint. */
 const navItemClass = (isActive = false) =>
@@ -66,15 +31,22 @@ export default function Sidebar() {
   const isPro = user?.plan === 'pro'
 
   return (
-    <aside className="sticky top-0 flex h-screen w-full flex-col gap-8 overflow-y-auto bg-white px-5 pt-8 pb-7">
-      <img src="/relearn-full-logo.svg" alt="Re:Learn" className="h-6 w-auto self-start" />
+    <aside className="sticky top-0 flex h-screen w-full flex-col gap-8 overflow-y-auto bg-white px-[18px] pt-8 pb-7 lg:px-5">
+      {/* Desktop wordmark; the tablet rail shows the compact "R" mark instead. */}
+      <img
+        src="/relearn-full-logo.svg"
+        alt="Re:Learn"
+        className="hidden h-6 w-auto self-start lg:block"
+      />
+      <img src="/relearn-logo.svg" alt="Re:Learn" className="block h-6 w-auto self-start lg:hidden" />
+
       <nav className="flex w-full flex-col gap-6">
         {NAV_GROUPS.map((group) => {
           const ActionIcon = group.action?.icon
 
           return (
             <div key={group.label} className="flex w-full flex-col gap-2">
-              <p className="shrink-0 px-0 text-[10px] font-medium uppercase text-[#686b73]">
+              <p className="hidden shrink-0 text-[10px] font-medium uppercase text-[#686b73] lg:block">
                 {group.label}
               </p>
               {group.items.map(({ to, label, icon: Icon, end }) => (
@@ -82,16 +54,27 @@ export default function Sidebar() {
                   key={to}
                   to={to}
                   end={end}
+                  title={label}
                   className={({ isActive }) => navItemClass(isActive)}
                 >
                   <Icon size={20} strokeWidth={1.75} className="shrink-0" aria-hidden="true" />
-                  <span className="whitespace-nowrap">{label}</span>
+                  <span className="hidden whitespace-nowrap lg:inline">{label}</span>
                 </NavLink>
               ))}
               {group.action && (
-                <button type="button" onClick={logout} className={navActionClass}>
-                  <ActionIcon size={20} strokeWidth={1.75} className="shrink-0" aria-hidden="true" />
-                  <span className="whitespace-nowrap">{group.action.label}</span>
+                <button
+                  type="button"
+                  onClick={logout}
+                  title={group.action.label}
+                  className={navActionClass}
+                >
+                  <ActionIcon
+                    size={20}
+                    strokeWidth={1.75}
+                    className="shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="hidden whitespace-nowrap lg:inline">{group.action.label}</span>
                 </button>
               )}
             </div>
@@ -99,7 +82,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="flex w-full shrink-0 flex-col gap-5 border-t border-solid border-[#dad9d4] pt-5">
+      <div className="hidden w-full shrink-0 flex-col gap-5 border-t border-solid border-[#dad9d4] pt-5 lg:flex">
         <div className="flex w-full flex-col gap-2">
           <div className="flex w-full items-start justify-between">
             <p className="text-[12px] font-medium whitespace-nowrap text-[#17191f]">AI usage</p>

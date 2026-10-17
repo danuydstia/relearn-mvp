@@ -1,6 +1,7 @@
 /**
  * Button — primary / secondary / ghost.
  * Design: Primary CTA — bg #03f, border #03f, radius 10, 13px semibold.
+ *   Secondary CTA — white bg, #dad9d4 border, **blue** #03f label.
  *   size="md" → h 48, px 20  (invitation, card actions)
  *   size="sm" → h 38, px 15  (compact actions, e.g. "+ Input Your Material")
  */
@@ -8,7 +9,7 @@ const VARIANTS = {
   primary:
     'bg-[#0033ff] border-[#0033ff] text-white hover:bg-[#2652ff] hover:border-[#2652ff]',
   secondary:
-    'bg-white border-[#dad9d4] text-[#17191f] hover:bg-[#f5f5f2] hover:border-[#c8c7c2]',
+    'bg-white border-[#dad9d4] text-[#0033ff] hover:bg-[#f5f5f2] hover:border-[#c8c7c2]',
   ghost: 'bg-transparent border-transparent text-[#0033ff] hover:bg-[#eef1ff]',
 }
 

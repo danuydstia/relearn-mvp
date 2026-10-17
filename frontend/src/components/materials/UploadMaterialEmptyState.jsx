@@ -13,7 +13,9 @@ export default function UploadMaterialEmptyState({ onUpload, uploading = false }
         <p className="text-center text-[13px] leading-[1.5] font-semibold text-[#17191f]">
           No content uploaded yet
         </p>
-        <p className="w-[373px] max-w-full text-center text-[11px] leading-[1.5] font-normal text-[#686b73]">
+        {/* Copy is constrained to 212px on mobile (3 lines, design 2:6666) and
+            373px from 768px up (2 lines, design 91:4714). */}
+        <p className="w-[212px] max-w-full text-center text-[11px] leading-[1.5] font-normal text-[#686b73] md:w-[373px]">
           Start by uploading your first learning material. The AI will assist you according to your
           preferences.
         </p>
