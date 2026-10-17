@@ -256,7 +256,10 @@ export default function EditProfilePage() {
           </form>
 
           <div className="hidden min-w-px flex-1 lg:block">
-            <IdentityPreview name={previewName} />
+            <IdentityPreview 
+              name={previewName} 
+              src={avatarPreview || user?.avatar_url} 
+            />
           </div>
         </div>
 

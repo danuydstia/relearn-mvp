@@ -524,8 +524,9 @@ Catat folder PHP-nya (contoh: `C:\php\php-8.4.26`).
    ```
 
 
-
-
+##  Setup Supabase
+1. jalankan perintah composer require league/flysystem-aws-s3-v3 "^3.0" --with-all-dependencies
+2. sesuaikan konfig di .env
 
 
 ## 8. Menjalankan Aplikasi

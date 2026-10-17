@@ -7,7 +7,7 @@ import Avatar from '../ui/Avatar.jsx'
  * Profile screen will, between two hairlines. Removed below 768px, where the
  * design drops the column entirely.
  */
-export default function IdentityPreview({ name }) {
+export default function IdentityPreview({ name, src }) { // Tambahkan src di sini
   return (
     <div className="flex w-full flex-col gap-4 pt-2">
       <p className="w-full text-[20px] leading-[1.5] font-normal text-[#17191f]">
@@ -15,7 +15,9 @@ export default function IdentityPreview({ name }) {
       </p>
 
       <div className="flex w-full items-center gap-4 border-y border-solid border-[#dad9d4] py-6">
-        <Avatar name={name} />
+        {/* Tambahkan src di sini */}
+        <Avatar name={name} src={src} /> 
+        
         <p className="min-w-px flex-1 truncate text-[22px] leading-[1.5] font-semibold text-[#17191f]">
           {name}
         </p>
@@ -27,3 +29,4 @@ export default function IdentityPreview({ name }) {
     </div>
   )
 }
+
