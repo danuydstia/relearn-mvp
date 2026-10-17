@@ -33,24 +33,24 @@ function RegisterForm({ onRegister, onGoogleSignIn, onBackToLogin, isSubmitting 
       aria-label="Register form"
     >
       <div className="flex w-[430px] max-w-full flex-col gap-8">
-        <div className="flex w-full shrink-0 flex-col gap-2">
-          <h2 className="m-0 text-[32px] font-semibold leading-[38px] text-[#17191f] min-[1024px]:text-[36px] min-[1024px]:leading-[44px]">
+        <div className="flex w-full shrink-0 flex-col gap-3">
+          <h2 className="m-0 text-[32px] font-semibold leading-[38px] text-[#17191f] min-[1024px]:text-[42px] min-[1024px]:leading-[50px]">
             Get started
           </h2>
-          <p className="text-[13px] font-normal leading-[20px] text-[#686b73]">
+          <p className="text-[15px] font-normal leading-[23px] text-[#686b73]">
             Enter your details to create your new account.
           </p>
         </div>
 
-        <form className="flex w-full flex-col gap-5" onSubmit={handleSubmit} aria-busy={isSubmitting}>
+        <form className="flex w-full flex-col gap-8" onSubmit={handleSubmit} aria-busy={isSubmitting}>
           {formError && (
             <p className="text-[13px] font-medium leading-4 text-[#b42318]" role="alert">
               {formError}
             </p>
           )}
 
-          <div className="flex w-full flex-col gap-3">
-            <label className="flex flex-col gap-1.5 text-[13px] font-medium leading-4 text-[#17191f]">
+          <div className="flex w-full flex-col gap-4">
+            <label className="flex flex-col gap-2 text-[13px] font-medium leading-4 text-[#17191f]">
               <span>Name</span>
               <input
                 type="text"
@@ -60,11 +60,11 @@ function RegisterForm({ onRegister, onGoogleSignIn, onBackToLogin, isSubmitting 
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Enter your name"
-                className="h-12 w-full rounded-[10px] border border-[#dad9d4] bg-white px-4 text-[15px] font-normal leading-normal text-[#17191f] outline-none placeholder:text-[#8a8d94] focus:border-[#03f]"
+                className="h-14 w-full rounded-[12px] border border-[#dad9d4] bg-white px-4 text-[15px] font-normal leading-normal text-[#17191f] outline-none placeholder:text-[#8a8d94] focus:border-[#03f]"
               />
             </label>
 
-            <label className="flex flex-col gap-1.5 text-[13px] font-medium leading-4 text-[#17191f]">
+            <label className="flex flex-col gap-2 text-[13px] font-medium leading-4 text-[#17191f]">
               <span>Email</span>
               <input
                 type="email"
@@ -74,13 +74,13 @@ function RegisterForm({ onRegister, onGoogleSignIn, onBackToLogin, isSubmitting 
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
-                className="h-12 w-full rounded-[10px] border border-[#dad9d4] bg-white px-4 text-[15px] font-normal leading-normal text-[#17191f] outline-none placeholder:text-[#8a8d94] focus:border-[#03f]"
+                className="h-14 w-full rounded-[12px] border border-[#dad9d4] bg-white px-4 text-[15px] font-normal leading-normal text-[#17191f] outline-none placeholder:text-[#8a8d94] focus:border-[#03f]"
               />
             </label>
 
-            <label className="flex flex-col gap-1.5 text-[13px] font-medium leading-4 text-[#17191f]">
+            <label className="flex flex-col gap-2 text-[13px] font-medium leading-4 text-[#17191f]">
               <span>Password</span>
-              <span className="relative block h-12 w-full">
+              <span className="relative block h-14 w-full">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
@@ -90,7 +90,7 @@ function RegisterForm({ onRegister, onGoogleSignIn, onBackToLogin, isSubmitting 
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className="h-12 w-full rounded-[10px] border border-[#dad9d4] bg-white px-4 pr-12 text-[15px] font-normal leading-normal text-[#17191f] outline-none placeholder:text-[#8a8d94] focus:border-[#03f]"
+                  className="h-14 w-full rounded-[12px] border border-[#dad9d4] bg-white px-4 pr-12 text-[15px] font-normal leading-normal text-[#17191f] outline-none placeholder:text-[#8a8d94] focus:border-[#03f]"
                 />
                 <button
                   type="button"
@@ -105,28 +105,30 @@ function RegisterForm({ onRegister, onGoogleSignIn, onBackToLogin, isSubmitting 
             </label>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex h-12 w-full items-center justify-center rounded-[8px] border-0 bg-[#03f] px-6 text-[14px] font-semibold leading-normal text-white disabled:cursor-not-allowed disabled:opacity-60 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2652ff] hover:shadow-md active:translate-y-0 cursor-pointer"
-          >
-            {isSubmitting ? 'Registering…' : 'Register'}
-          </button>
+          <div className="flex w-full flex-col gap-4">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex h-14 w-full items-center justify-center rounded-[12px] border-0 bg-[#03f] px-6 text-[15px] font-semibold leading-normal text-white disabled:cursor-not-allowed disabled:opacity-60 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2652ff] hover:shadow-md active:translate-y-0 cursor-pointer"
+            >
+              {isSubmitting ? 'Registering…' : 'Register'}
+            </button>
 
-          <div className="flex items-center gap-3 text-[11px] text-[#8a8d94]" aria-label="Or continue with another method">
-            <span className="h-px flex-1 bg-[#e4e3df]" />
-            <span>or</span>
-            <span className="h-px flex-1 bg-[#e4e3df]" />
+            <div className="flex items-center gap-3 text-[12px] leading-[normal] text-[#686b73]" aria-label="Or continue with another method">
+              <span className="h-px flex-1 bg-[#dad9d4]" />
+              <span>or</span>
+              <span className="h-px flex-1 bg-[#dad9d4]" />
+            </div>
+
+            <button
+              type="button"
+              onClick={onGoogleSignIn}
+              className="flex h-14 w-full items-center justify-center gap-3 rounded-[12px] border border-[#dad9d4] bg-white px-6 text-[15px] font-medium text-[#17191f] cursor-pointer transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#f5f5f2] hover:border-[#c8c7c2] hover:shadow-md active:translate-y-0"
+            >
+              <span className="text-[16px] font-semibold text-[#4285f4]">G</span>
+              Continue with Google
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={onGoogleSignIn}
-            className="flex h-12 w-full items-center justify-center gap-3 rounded-[8px] border border-[#dad9d4] bg-white px-6 text-[14px] font-medium text-[#17191f] cursor-pointer transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#f5f5f2] hover:border-[#c8c7c2] hover:shadow-md active:translate-y-0"
-          >
-            <span className="text-[16px] font-semibold text-[#4285f4]">G</span>
-            Continue with Google
-          </button>
 
           <p className="w-full text-center text-[13px] font-normal leading-4 text-[#686b73]">
             Already have an account?{' '}

@@ -88,6 +88,10 @@ const EXPECTATIONS = {
   },
 }
 
+// Past 1440 the content holds its 1128px boundary, so the 1440 geometry applies
+// unchanged — that identity is itself the assertion.
+EXPECTATIONS['1920'] = EXPECTATIONS['1440']
+
 function measure(kind) {
   const box = (el) => {
     if (!el) return null
@@ -166,7 +170,7 @@ function report(label, expected, actual) {
 }
 
 // ── Profile + Edit Profile at each designed width ────────────────────────────
-for (const width of [320, 375, 960, 1440]) {
+for (const width of [320, 375, 960, 1440, 1920]) {
   const height = width === 1440 ? 1000 : 1400
   const expected = EXPECTATIONS[width] ?? {}
 

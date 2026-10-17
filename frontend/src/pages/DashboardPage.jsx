@@ -64,50 +64,55 @@ export default function DashboardPage() {
   const hasNoMaterials = Array.isArray(materials) && materials.length === 0
 
   return (
-    <div className="flex w-full flex-col gap-8 px-6 pt-7 pb-8 md:px-8 md:py-8 lg:px-10 lg:py-10">
-      <LearningInvitation onNewSession={openUploadPicker} />
+    <div className="flex w-full flex-col px-6 pt-7 pb-8 md:px-8 md:py-8 lg:px-10 lg:py-10">
+      {/* Bounded to the design's 1128px "Content boundary" — the spec states the
+          desktop content is bounded rather than stretched (60:9231). No effect
+          until the viewport exceeds ~1552px. */}
+      <div className="flex w-full max-w-[1128px] flex-col gap-8">
+        <LearningInvitation onNewSession={openUploadPicker} />
 
-      {uploadError && (
-        <p className="text-[13px] font-medium text-[#b42318]" role="alert">
-          {uploadError}
-        </p>
-      )}
+        {uploadError && (
+          <p className="text-[13px] font-medium text-[#b42318]" role="alert">
+            {uploadError}
+          </p>
+        )}
 
-      <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-start lg:gap-7">
-        {/* Learning column */}
-        <div className="flex w-full min-w-0 flex-col gap-8 lg:flex-1 lg:gap-7">
-          <ContinueLearning />
-          <RecentLearning
-            showEmptyState={hasNoMaterials}
-            onUpload={openUploadPicker}
-            uploading={uploading}
-          />
-        </div>
+        <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-start lg:gap-7">
+          {/* Learning column */}
+          <div className="flex w-full min-w-0 flex-col gap-8 lg:flex-1 lg:gap-7">
+            <ContinueLearning />
+            <RecentLearning
+              showEmptyState={hasNoMaterials}
+              onUpload={openUploadPicker}
+              uploading={uploading}
+            />
+          </div>
 
-        {/* Reflection group — two equal columns on tablet, one 340px rail on desktop. */}
-        <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 md:items-start md:gap-6 lg:flex lg:w-[340px] lg:shrink-0 lg:flex-col lg:gap-7">
-          <LearningPerformance />
-          <div className="flex w-full flex-col gap-8 md:gap-6 lg:gap-7">
-            <YourCommunity />
-            <ProgressAchievements />
+          {/* Reflection group — two equal columns on tablet, one 340px rail on desktop. */}
+          <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 md:items-start md:gap-6 lg:flex lg:w-[340px] lg:shrink-0 lg:flex-col lg:gap-7">
+            <LearningPerformance />
+            <div className="flex w-full flex-col gap-8 md:gap-6 lg:gap-7">
+              <YourCommunity />
+              <ProgressAchievements />
+            </div>
           </div>
         </div>
+
+        {/* Below 1024px the sidebar's AI-usage block and the design-review note
+            move into the page flow (design 2:7093 / 2:7102). */}
+        <AccountUsage className="lg:hidden" />
+        <p className="w-full text-[11px] leading-[1.5] font-normal text-[#686b73] lg:hidden">
+          Example student data · For design review only
+        </p>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ACCEPTED_MATERIAL_TYPES}
+          className="hidden"
+          onChange={handleFileSelected}
+        />
       </div>
-
-      {/* Below 1024px the sidebar's AI-usage block and the design-review note
-          move into the page flow (design 2:7093 / 2:7102). */}
-      <AccountUsage className="lg:hidden" />
-      <p className="w-full text-[11px] leading-[1.5] font-normal text-[#686b73] lg:hidden">
-        Example student data · For design review only
-      </p>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={ACCEPTED_MATERIAL_TYPES}
-        className="hidden"
-        onChange={handleFileSelected}
-      />
     </div>
   )
 }

@@ -50,12 +50,26 @@ const EXPECTATIONS = {
     note: null,
     sidebarNavItem: { x: 20, w: 192, h: 44 },
   },
+  // Beyond 1440 the content stays at the design's 1128px boundary rather than
+  // stretching ("desktop content is bounded rather than stretched", 60:9231).
+  'wide-1920': {
+    sidebarRail: { x: 0, w: 232 },
+    topBar: { x: 232, h: 80 },
+    mobileNav: null,
+    firstSection: { x: 272, w: 1128 },
+    leftColumn: { x: 272, w: 760 },
+    rightRail: { x: 1060, w: 340 },
+    accountUsage: null,
+    note: null,
+    sidebarNavItem: { x: 20, w: 192, h: 44 },
+  },
 }
 
 const VIEWPORTS = [
   { name: 'mobile-390', width: 390, height: 844 },
   { name: 'tablet-960', width: 960, height: 1200 },
   { name: 'desktop-1440', width: 1440, height: 900 },
+  { name: 'wide-1920', width: 1920, height: 1080 },
 ]
 
 function measure() {
