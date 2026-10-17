@@ -6,6 +6,8 @@ import ProtectedRoute from './components/auth/ProtectedRoute.jsx'
 import AuthLayout from './components/layout/AuthLayout.jsx'
 import AppShell from './components/layout/AppShell.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
+import ProfilePage from './pages/ProfilePage.jsx'
+import EditProfilePage from './pages/EditProfilePage.jsx'
 import PlaceholderPage from './pages/PlaceholderPage.jsx'
 import { useAuth } from './contexts/AuthContext'
 
@@ -171,6 +173,28 @@ function App() {
           <ProtectedRoute>
             <AppShell title="Dashboard">
               <DashboardPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <AppShell title="Profile">
+              <ProfilePage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile/edit"
+        element={
+          <ProtectedRoute>
+            <AppShell title="Edit Profile">
+              <EditProfilePage />
             </AppShell>
           </ProtectedRoute>
         }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DevPlanController;
 use App\Http\Controllers\Api\GoogleController;
 use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -22,6 +23,9 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+        // Profile — the display name shown on the Profile screen.
+        Route::patch('/profile', [ProfileController::class, 'update']);
 
         // Material
         Route::get('/materials', [MaterialController::class, 'index']);

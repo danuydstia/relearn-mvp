@@ -80,6 +80,17 @@ export function AuthProvider({ children }) {
   }
 
   /**
+   * Persist the display name shown on the Profile screen.
+   * Backs the Edit Profile form (design 60:9127) — the name is its only
+   * editable field.
+   */
+  const updateProfile = async ({ name }) => {
+    const res = await api.patch('/profile', { name })
+    setUser(res.data)
+    return res.data
+  }
+
+  /**
    * Development-only: switch the current user's plan without billing.
    * Backed by the local-only `/dev/plan` route.
    */
@@ -99,6 +110,7 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     fetchUser,
     logout,
+    updateProfile,
     updatePlan,
   }
 

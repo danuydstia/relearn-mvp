@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "verify:dashboard": "node scripts/verify-dashboard.mjs",
     "verify:responsive": "node scripts/verify-responsive.mjs",
+    "verify:profile": "node scripts/verify-profile.mjs",
     "measure:dashboard": "node scripts/measure-dashboard.mjs",
     "measure:responsive": "node scripts/measure-responsive.mjs",
     "verify:plan": "node scripts/verify-plan.mjs"
