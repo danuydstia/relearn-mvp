@@ -83,3 +83,6 @@ yarn-error.log*
 
 # MCP json
 opencode.json
+
+# Avatar storage
+backend/public/avatars
