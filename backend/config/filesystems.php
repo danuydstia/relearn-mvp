@@ -60,6 +60,21 @@ return [
             'report' => false,
         ],
 
+        'supabase' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_ACCESS_KEY_ID'),
+            'secret' => env('SUPABASE_S3_SECRET_ACCESS_KEY'),
+            'region' => env('SUPABASE_S3_REGION'),
+            'bucket' => env('SUPABASE_STORAGE_BUCKET'),
+            'endpoint' => env('SUPABASE_S3_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'visibility' => 'public', // sesuaikan: public jika bucket public
+            'throw' => false,
+            
+            'url' => env('SUPABASE_URL') . '/storage/v1/object/public/' . env('SUPABASE_STORAGE_BUCKET'),
+
+        ],
+
     ],
 
     /*
@@ -76,5 +91,9 @@ return [
     'links' => [
         public_path('storage') => storage_path('app/public'),
     ],
+
+
+    
+
 
 ];

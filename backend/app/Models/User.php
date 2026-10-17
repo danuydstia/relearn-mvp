@@ -91,7 +91,7 @@ class User extends Authenticatable
                 return preg_replace('/=s\d+-c$/', '=s256-c',$avatar);
             }
 
-            return asset($avatar);
+            return Storage::disk('supabase')->url($avatar);
         });
     }
 
