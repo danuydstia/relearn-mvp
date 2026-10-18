@@ -1,17 +1,25 @@
 import { chromium } from 'playwright'
 
 /**
- * Verification for Batch 5 (admin console shell + Overview).
+ * Verification for Batch 5 (admin console shell, Overview) and Batch 5.2a
+ * (Users).
  *
  *   node scripts/verify-admin.mjs <baseUrl> <outDir>
  *
  * Screenshots the console at 1440 (the design canvas) and at 1280 (the desktop
- * floor), then asserts the structural geometry against the Figma frame
+ * floor), then asserts the structural geometry against the Figma frames
  * "Admin / Ringkasan" (10:62423):
  *   sidebar 232 · top bar 80 · content gutters 32 · inner width 1144
  *   5 × KPI card 216×128 with 16px gaps
  *   analytics row 360 / 456 / 296, all 270 tall
  *   operational row 700 / 428, both 224 tall
+ * and "Admin / Pengguna" (10:62689):
+ *   4 × summary card 274×64 with 16px gaps
+ *   filter row 40 tall: 316 search + 144 export
+ *   table 44px header + ten 44px rows, columns 32/588/120/80/140/128/24
+ *
+ * The identity column is 588 rather than the design's 426 because the AI quota
+ * column (162) is not part of this pass and its width is folded in.
  *
  * Also checks the access rules: a student never sees the console, and viewports
  * under 1280 get the "needs a wider screen" notice instead of a collapsed shell.
@@ -34,6 +42,23 @@ const OVERVIEW = {
     { month: '2026-10', label: 'Oct', total: 1248 },
   ],
   materials: { total: 312, processing: 3, failed: 5 },
+}
+
+const USERS = {
+  data: [
+    { id: 41, name: 'Nadia Putri', email: 'nadia.putri@gmail.com', role: 'student', plan: 'pro', status: 'active', created_at: '2026-09-12T03:00:00+07:00' },
+    { id: 40, name: 'Fajar Ramadhan', email: 'fajar.ramadhan@gmail.com', role: 'student', plan: 'pro', status: 'active', created_at: '2026-09-10T03:00:00+07:00' },
+    { id: 39, name: 'Bima Prakoso', email: 'bima.prakoso@gmail.com', role: 'student', plan: 'free', status: 'active', created_at: '2026-09-08T03:00:00+07:00' },
+    { id: 38, name: 'Siti Aisyah', email: 'siti.aisyah@gmail.com', role: 'student', plan: 'pro', status: 'active', created_at: '2026-09-05T03:00:00+07:00' },
+    { id: 37, name: 'Rizky Hidayat', email: 'rizky.hidayat@gmail.com', role: 'student', plan: 'free', status: 'suspended', created_at: '2026-08-28T03:00:00+07:00' },
+    { id: 36, name: 'Dewi Lestari', email: 'dewi.lestari@gmail.com', role: 'student', plan: 'pro', status: 'active', created_at: '2026-08-21T03:00:00+07:00' },
+    { id: 35, name: 'Agus Setiawan', email: 'agus.setiawan@gmail.com', role: 'student', plan: 'free', status: 'active', created_at: '2026-08-14T03:00:00+07:00' },
+    { id: 34, name: 'Putri Handayani', email: 'putri.handayani@gmail.com', role: 'student', plan: 'pro', status: 'active', created_at: '2026-08-02T03:00:00+07:00' },
+    { id: 33, name: 'Hendra Wijaya', email: 'hendra.wijaya@gmail.com', role: 'student', plan: 'free', status: 'suspended', created_at: '2026-07-19T03:00:00+07:00' },
+    { id: 7, name: 'Dwi Pratama', email: 'dwi@relearn.id', role: 'admin', plan: 'pro', status: 'active', created_at: '2026-04-01T03:00:00+07:00' },
+  ],
+  meta: { total: 1248, page: 1, per_page: 10, last_page: 125, from: 1, to: 10 },
+  summary: { total: 1248, active: 1190, suspended: 58, pro: 240 },
 }
 
 function measure() {
@@ -82,6 +107,63 @@ function measure() {
   }
 }
 
+function measureUsers() {
+  const box = (el) => {
+    if (!el) return null
+    const r = el.getBoundingClientRect()
+    return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }
+  }
+
+  const main = document.querySelector('main')
+  const cards = [...main.querySelectorAll('div[class*="h-[64px]"]')]
+  const grids = [...main.querySelectorAll('div[class*="grid-cols-["]')]
+  const headerRow = grids[0] ?? null
+  const rows = grids.slice(1)
+  const search = main.querySelector('input[type="search"]')?.parentElement ?? null
+  const exportButton = [...main.querySelectorAll('button')].find(
+    (b) => b.textContent.trim() === 'Export CSV',
+  )
+  const perPage = main.querySelector('select[aria-label="Rows per page"]')
+
+  return {
+    sidebar: box(document.querySelector('aside')),
+    topbar: box(document.querySelector('header')),
+    content: box(main.querySelector(':scope > div')),
+    title: box(main.querySelector('h1')),
+    titleFont: main.querySelector('h1') ? getComputedStyle(main.querySelector('h1')).fontSize : null,
+    cardCount: cards.length,
+    card1: box(cards[0]),
+    card4: box(cards[3]),
+    cardGaps: cards
+      .slice(1)
+      .map((el, i) =>
+        Math.round(el.getBoundingClientRect().x - cards[i].getBoundingClientRect().right),
+      ),
+    summaryLabels: [...main.querySelectorAll('div[class*="h-[64px]"] p')].map((p) =>
+      p.textContent.trim(),
+    ),
+    search: box(search),
+    exportButton: box(exportButton),
+    headerRow: box(headerRow),
+    rowCount: rows.length,
+    firstRow: box(rows[0]),
+    lastRow: box(rows[rows.length - 1]),
+    table: box(headerRow?.parentElement ?? null),
+    columns: headerRow ? getComputedStyle(headerRow).gridTemplateColumns : null,
+    columnCount: headerRow ? headerRow.children.length : 0,
+    columnLabels: headerRow
+      ? [...headerRow.querySelectorAll('p, button')].map((el) => el.textContent.trim())
+      : [],
+    checkboxes: main.querySelectorAll('input[type="checkbox"]').length,
+    pageLabel:
+      [...main.querySelectorAll('p')]
+        .map((p) => p.textContent.trim())
+        .find((text) => text.includes(' of ') && text.includes('users')) ?? null,
+    perPage: perPage ? perPage.value : null,
+    overflow: document.documentElement.scrollWidth - window.innerWidth,
+  }
+}
+
 const browser = await chromium.launch()
 
 async function open(width, height, { user = ADMIN, path = '/admin/overview' } = {}) {
@@ -92,6 +174,9 @@ async function open(width, height, { user = ADMIN, path = '/admin/overview' } = 
   )
   await page.route('**/api/v1/admin/overview', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(OVERVIEW) }),
+  )
+  await page.route('**/api/v1/admin/users*', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(USERS) }),
   )
   await page.route('**/api/v1/materials', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [] }) }),
@@ -237,6 +322,55 @@ const forStudent = await entryStudent.evaluate(() => {
 await entryStudent.close()
 console.log('\n=== Student sidebar entry ===')
 console.log(`    admin sees Admin entry=${forAdmin} (want true)  student sees admin link=${forStudent} (want false)`)
+
+// ── Admin Users at 1440 and 1280 (design 10:62689) ───────────────────────────
+const EXPECTED_USERS_1440 = {
+  sidebar: { x: 0, w: 232 },
+  topbar: { x: 232, w: 1208, h: 80 },
+  content: { x: 264, w: 1144 },
+  card1: { x: 264, w: 274, h: 64 },
+  card4: { x: 1134, w: 274, h: 64 },
+  search: { x: 264, w: 316, h: 40 },
+  exportButton: { x: 1264, w: 144, h: 40 },
+  headerRow: { x: 264, w: 1144, h: 44 },
+  firstRow: { x: 264, w: 1144, h: 44 },
+  table: { x: 264, w: 1144, h: 484 },
+}
+
+const usersWide = await open(1440, 1024, { path: '/admin/users' })
+await usersWide.screenshot({ path: `${OUT}/admin-users-1440.png`, fullPage: true })
+console.log('\n=== Admin Users @ 1440×1024 (design 10:62689) ===')
+const usersMetrics = await usersWide.evaluate(measureUsers)
+report('Geometry', EXPECTED_USERS_1440, usersMetrics)
+console.log(
+  `    summary          ${usersMetrics.cardCount} cards (want 4), gaps ${usersMetrics.cardGaps.join('/')} (want 16/16/16)`,
+)
+console.log(`    summary values   ${usersMetrics.summaryLabels.join(' · ')}`)
+console.log(
+  `    table            header ${usersMetrics.headerRow?.h}px (want 44), ${usersMetrics.rowCount} rows (want 10) at ${usersMetrics.firstRow?.h}px (want 44)`,
+)
+console.log(`    columns          ${usersMetrics.columns}`)
+console.log(`    column labels    ${usersMetrics.columnLabels.join(' | ')}`)
+console.log(
+  `    selection        ${usersMetrics.checkboxes} row checkboxes (want 10)`,
+)
+console.log(
+  `    pagination       "${usersMetrics.pageLabel}"  per-page=${usersMetrics.perPage} (want 10)`,
+)
+console.log(`    page overflow    ${usersMetrics.overflow}px (want 0)`)
+await usersWide.close()
+
+const usersFloor = await open(1280, 900, { path: '/admin/users' })
+await usersFloor.screenshot({ path: `${OUT}/admin-users-1280.png`, fullPage: true })
+const usersFloorMetrics = await usersFloor.evaluate(measureUsers)
+console.log('\n=== Admin Users @ 1280×900 (desktop floor) ===')
+console.log(
+  `    shell            content=${usersFloorMetrics.content?.w} search=${usersFloorMetrics.search?.w} overflow=${usersFloorMetrics.overflow}px (want 0)`,
+)
+console.log(
+  `    cards            card1=${usersFloorMetrics.card1?.w} card4=${usersFloorMetrics.card4?.w} rows=${usersFloorMetrics.rowCount}`,
+)
+await usersFloor.close()
 
 await browser.close()
 console.log(`\nScreenshots written to ${OUT}`)

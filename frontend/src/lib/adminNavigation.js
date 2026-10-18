@@ -12,9 +12,9 @@ import {
 /**
  * Admin console navigation (design 10:62424).
  *
- * Icons and grouping mirror the design's own sidebar. Only Overview is built
- * for now: every other destination renders the shared "not available yet"
- * panel inside the admin shell.
+ * Icons and grouping mirror the design's own sidebar. Overview and Users are
+ * built: every other destination renders the shared "not available yet" panel
+ * inside the admin shell.
  */
 export const ADMIN_NAV_GROUPS = [
   {
@@ -37,8 +37,11 @@ export const ADMIN_NAV_GROUPS = [
   },
 ]
 
-/** The one screen the console currently implements. */
+/** The console landing screen. */
 export const ADMIN_OVERVIEW_PATH = '/admin/overview'
+
+/** The account list (design 10:62689). */
+export const ADMIN_USERS_PATH = '/admin/users'
 
 /**
  * Where an account lands after signing in.
@@ -53,5 +56,5 @@ export function landingPathFor(user) {
 
 /** Destinations that still show the "not available yet" panel. */
 export const ADMIN_PENDING_ITEMS = ADMIN_NAV_GROUPS.flatMap((group) => group.items).filter(
-  (item) => item.to !== ADMIN_OVERVIEW_PATH,
+  ({ to }) => to !== ADMIN_OVERVIEW_PATH && to !== ADMIN_USERS_PATH,
 )

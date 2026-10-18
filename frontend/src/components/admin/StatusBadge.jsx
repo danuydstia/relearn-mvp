@@ -1,11 +1,14 @@
 /**
  * StatusBadge — payment/processing state pill (design node 10:62646).
- * Tones come straight from the design's three variants.
+ * Tones come straight from the design's variants. Account status reuses the
+ * same palette: Active carries the settled green, Suspended the failed red.
  */
 const TONES = {
   paid: 'bg-[#edf7f1] text-[#217353]',
   pending: 'bg-[#fff6e3] text-[#91620f]',
   failed: 'bg-[#fff0ed] text-[#a53932]',
+  active: 'bg-[#edf7f1] text-[#217353]',
+  suspended: 'bg-[#fff0ed] text-[#a53932]',
 }
 
 export default function StatusBadge({ tone = 'paid', children }) {

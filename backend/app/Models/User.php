@@ -42,16 +42,23 @@ class User extends Authenticatable
 
     const PLAN_PRO = 'pro';
 
+    // Account status — shown by the admin Users screen (design 10:62689).
+    const STATUS_ACTIVE = 'active';
+
+    const STATUS_SUSPENDED = 'suspended';
+
     /**
      * The model's default attribute values.
      *
-     * Mirrors the `users.plan` column default so freshly instantiated models
-     * (registration responses, factory-made models) already report their plan.
+     * Mirrors the `users.plan` and `users.status` column defaults so freshly
+     * instantiated models (registration responses, factory-made models) already
+     * report them rather than serializing null.
      *
      * @var array<string, mixed>
      */
     protected $attributes = [
         'plan' => self::PLAN_FREE,
+        'status' => self::STATUS_ACTIVE,
     ];
 
     /**
@@ -70,6 +77,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'suspended_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

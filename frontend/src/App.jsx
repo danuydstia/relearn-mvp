@@ -12,8 +12,14 @@ import PlaceholderPage from './pages/PlaceholderPage.jsx'
 import AdminLayout from './components/layout/AdminLayout.jsx'
 import AdminRoute from './components/auth/AdminRoute.jsx'
 import AdminOverviewPage from './pages/admin/AdminOverviewPage.jsx'
+import AdminUsersPage from './pages/admin/AdminUsersPage.jsx'
 import AdminUnavailablePage from './pages/admin/AdminUnavailablePage.jsx'
-import { ADMIN_OVERVIEW_PATH, ADMIN_PENDING_ITEMS, landingPathFor } from './lib/adminNavigation'
+import {
+  ADMIN_OVERVIEW_PATH,
+  ADMIN_PENDING_ITEMS,
+  ADMIN_USERS_PATH,
+  landingPathFor,
+} from './lib/adminNavigation'
 import { useAuth } from './contexts/AuthContext'
 
 // ─── Inline handler untuk Google callback (tanpa halaman terpisah) ───
@@ -237,6 +243,17 @@ function App() {
           <AdminRoute>
             <AdminLayout>
               <AdminOverviewPage />
+            </AdminLayout>
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path={ADMIN_USERS_PATH}
+        element={
+          <AdminRoute>
+            <AdminLayout>
+              <AdminUsersPage />
             </AdminLayout>
           </AdminRoute>
         }

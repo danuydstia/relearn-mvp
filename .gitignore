@@ -86,3 +86,6 @@ opencode.json
 
 # Avatar storage
 backend/public/avatars
+
+# own agent markdown rules
+AGENTS_2.md
