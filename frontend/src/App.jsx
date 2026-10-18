@@ -13,7 +13,7 @@ import AdminLayout from './components/layout/AdminLayout.jsx'
 import AdminRoute from './components/auth/AdminRoute.jsx'
 import AdminOverviewPage from './pages/admin/AdminOverviewPage.jsx'
 import AdminUnavailablePage from './pages/admin/AdminUnavailablePage.jsx'
-import { ADMIN_OVERVIEW_PATH, ADMIN_PENDING_ITEMS } from './lib/adminNavigation'
+import { ADMIN_OVERVIEW_PATH, ADMIN_PENDING_ITEMS, landingPathFor } from './lib/adminNavigation'
 import { useAuth } from './contexts/AuthContext'
 
 // ─── Inline handler untuk Google callback (tanpa halaman terpisah) ───
@@ -40,7 +40,7 @@ function GoogleCallbackHandler() {
     }
 
     auth.fetchUser(token)
-      .then(() => navigate('/dashboard'))
+      .then((user) => navigate(landingPathFor(user)))
       .catch(() => {
         setError('Gagal memproses login Google')
         const t = setTimeout(() => navigate('/login'), 2500)
@@ -93,8 +93,8 @@ function App() {
     setFormError('')
     setFieldErrors({})
     try {
-      await auth.login({ email, password })
-      navigate('/dashboard')
+      const { user } = await auth.login({ email, password })
+      navigate(landingPathFor(user))
     } catch (err) {
       const res = err.response
       if (res?.status === 422) {
@@ -114,8 +114,8 @@ function App() {
     setFormError('')
     setFieldErrors({})
     try {
-      await auth.register({ name, email, password })
-      navigate('/dashboard')
+      const { user } = await auth.register({ name, email, password })
+      navigate(landingPathFor(user))
     } catch (err) {
       const res = err.response
       if (res?.status === 422) {

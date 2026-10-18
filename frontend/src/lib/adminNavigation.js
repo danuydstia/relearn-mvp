@@ -40,6 +40,17 @@ export const ADMIN_NAV_GROUPS = [
 /** The one screen the console currently implements. */
 export const ADMIN_OVERVIEW_PATH = '/admin/overview'
 
+/**
+ * Where an account lands after signing in.
+ *
+ * Admins run the platform rather than study on it, so they arrive straight at
+ * the console. The student side stays reachable — the console shell links back
+ * to it, and nothing redirects the dashboard away.
+ */
+export function landingPathFor(user) {
+  return user?.role === 'admin' ? ADMIN_OVERVIEW_PATH : '/dashboard'
+}
+
 /** Destinations that still show the "not available yet" panel. */
 export const ADMIN_PENDING_ITEMS = ADMIN_NAV_GROUPS.flatMap((group) => group.items).filter(
   (item) => item.to !== ADMIN_OVERVIEW_PATH,

@@ -47,7 +47,8 @@ export const NAV_GROUPS = [
 
 /**
  * Extra destination only admin accounts see, appended to the Account group.
- * Admins keep the student shell; the console is one more entry, not a redirect.
+ * Admins keep access to the student shell — they land on the console at sign-in
+ * (see landingPathFor) but nothing redirects the student pages away from them.
  */
 export const ADMIN_NAV_ITEM = {
   to: '/admin/overview',

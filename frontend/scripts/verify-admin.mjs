@@ -187,6 +187,41 @@ console.log('\n=== Student visiting /admin/overview ===')
 console.log(`    "Admins only"=${studentState.refusal} (want true)  admin sidebar=${studentState.sidebar} (want false)`)
 await student.close()
 
+// ── Landing after sign-in ────────────────────────────────────────────────────
+// An admin arrives at the console; a student still arrives at the dashboard.
+async function landingAfterLogin(user) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 })
+  await page.route('**/api/v1/auth/login', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ user, token: 'verify-token' }),
+    }),
+  )
+  await page.route('**/api/v1/auth/me', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(user) }),
+  )
+  await page.route('**/api/v1/admin/overview', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(OVERVIEW) }),
+  )
+  await page.route('**/api/v1/materials', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [] }) }),
+  )
+
+  await page.goto(`${BASE}/login`, { waitUntil: 'networkidle' })
+  await page.fill('input[type="email"]', user.email)
+  await page.fill('input[type="password"]', 'verify-password')
+  await page.getByRole('button', { name: /log in/i }).click()
+  await page.waitForTimeout(900)
+  const landed = new URL(page.url()).pathname
+  await page.close()
+  return landed
+}
+
+console.log('\n=== Landing after sign-in ===')
+console.log(`    admin    → ${await landingAfterLogin(ADMIN)} (want /admin/overview)`)
+console.log(`    student  → ${await landingAfterLogin(STUDENT)} (want /dashboard)`)
+
 // ── Sidebar entry for admins, absent for students ────────────────────────────
 const entry = await open(1440, 900, { user: ADMIN, path: '/dashboard' })
 const forAdmin = await entry.evaluate(() => {
