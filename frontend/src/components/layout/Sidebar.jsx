@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import SubscriptionBadge from '../ui/SubscriptionBadge.jsx'
 import { useAuth } from '../../contexts/AuthContext'
-import { NAV_GROUPS } from '../../lib/navigation'
+import { NAV_GROUPS, ADMIN_NAV_ITEM } from '../../lib/navigation'
 
 /**
  * Sidebar — design node 2:7900 ("Re:Learn/Sidebar").
@@ -25,6 +25,9 @@ const navItemClass = (isActive = false) =>
 
 /** Destructive action styling (Log out) — reuses the danger token + error-soft hover. */
 const navActionClass = `${NAV_ITEM_BASE} text-[#b42318] hover:bg-[#fff5f2]`
+
+/** Admin entry icon, rendered only for admin accounts. */
+const AdminNavIcon = ADMIN_NAV_ITEM.icon
 
 export default function Sidebar() {
   const { user, logout } = useAuth()
@@ -61,6 +64,23 @@ export default function Sidebar() {
                   <span className="hidden whitespace-nowrap lg:inline">{label}</span>
                 </NavLink>
               ))}
+              {group.action && user?.role === 'admin' && (
+                <NavLink
+                  to={ADMIN_NAV_ITEM.to}
+                  title={ADMIN_NAV_ITEM.label}
+                  className={({ isActive }) => navItemClass(isActive)}
+                >
+                  <AdminNavIcon
+                    size={20}
+                    strokeWidth={1.75}
+                    className="shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="hidden whitespace-nowrap lg:inline">
+                    {ADMIN_NAV_ITEM.label}
+                  </span>
+                </NavLink>
+              )}
               {group.action && (
                 <button
                   type="button"

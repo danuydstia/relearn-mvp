@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  ShieldCheck,
   Trophy,
   Users,
 } from 'lucide-react'
@@ -43,6 +44,16 @@ export const NAV_GROUPS = [
     action: { label: 'Log out', icon: LogOut },
   },
 ]
+
+/**
+ * Extra destination only admin accounts see, appended to the Account group.
+ * Admins keep the student shell; the console is one more entry, not a redirect.
+ */
+export const ADMIN_NAV_ITEM = {
+  to: '/admin/overview',
+  label: 'Admin',
+  icon: ShieldCheck,
+}
 
 /**
  * The four real tabs of the mobile bar (design 2:6333). "More" is the fifth and

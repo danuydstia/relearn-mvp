@@ -9,6 +9,11 @@ import DashboardPage from './pages/DashboardPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import EditProfilePage from './pages/EditProfilePage.jsx'
 import PlaceholderPage from './pages/PlaceholderPage.jsx'
+import AdminLayout from './components/layout/AdminLayout.jsx'
+import AdminRoute from './components/auth/AdminRoute.jsx'
+import AdminOverviewPage from './pages/admin/AdminOverviewPage.jsx'
+import AdminUnavailablePage from './pages/admin/AdminUnavailablePage.jsx'
+import { ADMIN_OVERVIEW_PATH, ADMIN_PENDING_ITEMS } from './lib/adminNavigation'
 import { useAuth } from './contexts/AuthContext'
 
 // ─── Inline handler untuk Google callback (tanpa halaman terpisah) ───
@@ -210,6 +215,43 @@ function App() {
                 <PlaceholderPage title={title} description={description} />
               </AppShell>
             </ProtectedRoute>
+          }
+        />
+      ))}
+
+      {/* ── Admin console — desktop only, admin role only ── */}
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminLayout>
+              <Navigate to={ADMIN_OVERVIEW_PATH} replace />
+            </AdminLayout>
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path={ADMIN_OVERVIEW_PATH}
+        element={
+          <AdminRoute>
+            <AdminLayout>
+              <AdminOverviewPage />
+            </AdminLayout>
+          </AdminRoute>
+        }
+      />
+
+      {ADMIN_PENDING_ITEMS.map(({ to, label }) => (
+        <Route
+          key={to}
+          path={to}
+          element={
+            <AdminRoute>
+              <AdminLayout>
+                <AdminUnavailablePage title={label} />
+              </AdminLayout>
+            </AdminRoute>
           }
         />
       ))}

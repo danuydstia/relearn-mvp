@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\OverviewController as AdminOverviewController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DevPlanController;
 use App\Http\Controllers\Api\GoogleController;
@@ -33,6 +34,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/materials', [MaterialController::class, 'store']);
         Route::get('/materials/{material}', [MaterialController::class, 'show']);
         Route::delete('/materials/{material}', [MaterialController::class, 'destroy']);
+
+        // Admin — desktop console, admin role only.
+        Route::middleware('admin')->prefix('admin')->group(function () {
+            Route::get('/overview', [AdminOverviewController::class, 'index']);
+        });
     });
 
     // ===== Khusus development: ganti plan tanpa pembayaran =====

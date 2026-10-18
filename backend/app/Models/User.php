@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable([
@@ -75,12 +75,29 @@ class User extends Authenticatable
     }
 
     /**
+     * Effective plan for this account.
+     *
+     * Admins always have Pro access and never hold a subscription, so their
+     * stored `plan` column is ignored. Everyone else reports the stored value,
+     * which keeps subscription queries (`where('plan', 'pro')`) limited to
+     * students without needing an extra role filter.
+     */
+    protected function plan(): Attribute
+    {
+        return Attribute::get(
+            fn (): string => $this->isAdmin()
+                ? self::PLAN_PRO
+                : ($this->attributes['plan'] ?? self::PLAN_FREE)
+        );
+    }
+
+    /**
      * URL penuh avatar: foto Google (URL) atau file upload lokal (path di disk public).
      */
     protected function avatarUrl(): Attribute
     {
         return Attribute::get(function (): ?string {
-            $avatar =$this->avatar;
+            $avatar = $this->avatar;
 
             if (! $avatar) {
                 return null;
@@ -88,7 +105,7 @@ class User extends Authenticatable
 
             if (str_starts_with($avatar, 'http')) {
                 // foto Google: naikin resolusi dari s96 ke s256 biar nggak pecah di 52px
-                return preg_replace('/=s\d+-c$/', '=s256-c',$avatar);
+                return preg_replace('/=s\d+-c$/', '=s256-c', $avatar);
             }
 
             return Storage::disk('supabase')->url($avatar);
@@ -116,7 +133,7 @@ class User extends Authenticatable
 
     public function hasRole(string $role): bool
     {
-        return $this->role ===$role;
+        return $this->role === $role;
     }
 
     public function isPro(): bool
