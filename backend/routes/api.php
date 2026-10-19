@@ -30,11 +30,11 @@ Route::prefix('v1')->group(function () {
         Route::patch('/profile', [ProfileController::class, 'update']);
         Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar']);
 
-        // Material
         Route::get('/materials', [MaterialController::class, 'index']);
         Route::post('/materials', [MaterialController::class, 'store']);
         Route::get('/materials/{material}', [MaterialController::class, 'show']);
         Route::delete('/materials/{material}', [MaterialController::class, 'destroy']);
+
 
         // Admin — desktop console, admin role only.
         Route::middleware('admin')->prefix('admin')->group(function () {

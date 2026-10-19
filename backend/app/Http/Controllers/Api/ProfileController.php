@@ -11,16 +11,17 @@ class ProfileController extends Controller
 {
     public function update(Request $request): JsonResponse
     {
-        $validated =$request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        $user = $request->user();$user->name = $validated['name'];$user->save();
+        $user = $request->user();
+        $user->name = $validated['name'];
+        $user->save();
 
         return response()->json($user);
     }
 
-    
     public function updateAvatar(Request $request): JsonResponse
     {
         $request->validate([
@@ -28,7 +29,8 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
-        $disk = Storage::disk('supabase');
+        // Menggunakan disk supabase_avatars
+        $disk = Storage::disk('supabase_avatars');
 
         // Hapus avatar lama dari Supabase jika ada
         if ($user->avatar) {
@@ -42,7 +44,6 @@ class ProfileController extends Controller
         $filename = $file->hashName();
         $path = 'avatars/' . $filename;
 
-        // Simpan ke Supabase, bukan ke public_path
         $disk->putFileAs('avatars', $file, $filename, 'public');
 
         $user->avatar = $path;
@@ -59,12 +60,10 @@ class ProfileController extends Controller
             return null;
         }
 
-        // Jika sudah URL eksternal (mis. Google), jangan dihapus dari Supabase
         if (str_starts_with($avatar, 'http')) {
             return null;
         }
 
-        // Jika path lama tidak diawali 'avatars/', tambahkan
         return str_contains($avatar, '/') ? $avatar : 'avatars/' . $avatar;
     }
 }

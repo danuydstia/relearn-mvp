@@ -112,13 +112,14 @@ class User extends Authenticatable
             }
 
             if (str_starts_with($avatar, 'http')) {
-                // foto Google: naikin resolusi dari s96 ke s256 biar nggak pecah di 52px
                 return preg_replace('/=s\d+-c$/', '=s256-c', $avatar);
             }
 
-            return Storage::disk('supabase')->url($avatar);
+            // Gunakan disk supabase_avatars
+            return Storage::disk('supabase_avatars')->url($avatar);
         });
     }
+
 
     // ============ Relations ============
 

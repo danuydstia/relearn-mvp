@@ -4,84 +4,72 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Material;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class MaterialController extends Controller
 {
-    /**
-     * Accepted document formats for MVP (see ReLearn_TechStack.md §6.1).
-     */
-    private const MIME_TYPES = [
-        'application/pdf',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    ];
-
-    /**
-     * List the authenticated user's materials.
-     */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $materials = $request->user()
-            ->materials()
-            ->latest()
-            ->get();
-
-        return response()->json(['data' => $materials]);
+        $materials = $request->user()->materials()->latest()->get();
+        return response()->json($materials);
     }
 
-    /**
-     * Store a newly uploaded material.
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'file' => [
-                'required',
-                'file',
-                'max:20480',
-                'mimes:pdf,docx,pptx',
-                'mimetypes:'.implode(',', self::MIME_TYPES),
-            ],
+            'title' => ['required', 'string', 'max:255'],
+            'file' => ['required', 'file', 'mimes:pdf,doc,docx,ppt,pptx', 'max:10240'],
         ]);
 
-        $file = $validated['file'];
-        $path = $file->store("materials/{$request->user()->id}", 'local');
+        $user = $request->user();
+        $file = $request->file('file');
+        
+        // Menggunakan disk supabase_materials
+        $disk = Storage::disk('supabase_materials');
 
-        $material = $request->user()->materials()->create([
-            'original_name' => $file->getClientOriginalName(),
-            'stored_name' => $file->hashName(),
-            'mime_type' => $file->getClientMimeType(),
-            'size' => $file->getSize(),
-            'disk' => 'local',
-            'path' => $path,
-            'status' => Material::STATUS_UPLOADED,
+        $filename = $file->hashName();
+        $path = 'materials/' . $filename;
+
+        $disk->putFileAs('materials', $file, $filename, 'public');
+
+        $material = $user->materials()->create([
+            'title' => $validated['title'],
+            'file_path' => $path,
+            'file_type' => $file->getClientOriginalExtension(),
+            'status' => 'pending',
         ]);
 
-        return response()->json(['data' => $material], 201);
+        return response()->json([
+            'message' => 'Material uploaded successfully',
+            'data' => $material
+        ], 201);
     }
 
-    /**
-     * Show a single material.
-     */
-    public function show(Request $request, Material $material)
+    public function show(Request $request, Material $material): JsonResponse
     {
-        abort_unless($material->user_id === $request->user()->id, 403);
+        if ($material->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
-        return response()->json(['data' => $material]);
+        return response()->json($material);
     }
 
-    /**
-     * Remove a material and its stored file.
-     */
-    public function destroy(Request $request, Material $material)
+    public function destroy(Request $request, Material $material): JsonResponse
     {
-        abort_unless($material->user_id === $request->user()->id, 403);
+        if ($material->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
-        Storage::disk($material->disk)->delete($material->path);
+        // Menggunakan disk supabase_materials
+        $disk = Storage::disk('supabase_materials');
+        if ($disk->exists($material->file_path)) {
+            $disk->delete($material->file_path);
+        }
+
         $material->delete();
 
-        return response()->json(['message' => 'Material deleted']);
+        return response()->json(['message' => 'Material deleted successfully']);
     }
 }

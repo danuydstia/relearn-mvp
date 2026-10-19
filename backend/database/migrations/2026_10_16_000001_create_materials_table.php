@@ -14,21 +14,11 @@ return new class extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-
-            $table->string('original_name');
-            $table->string('stored_name');
-            $table->string('mime_type', 100);
-            $table->unsignedBigInteger('size');
-            $table->string('disk', 50)->default('local');
-            $table->string('path');
-
-            // uploaded | processing | completed | failed
-            $table->string('status', 20)->default('uploaded');
-            $table->text('failure_reason')->nullable();
-
+            $table->string('title');
+            $table->string('file_path', 500); // Menyimpan path Supabase (contoh: materials/abcd.pdf)
+            $table->string('file_type', 50);  // pdf, docx, pptx
+            $table->string('status', 20)->default('pending'); // pending, processed, failed (untuk AI nanti)
             $table->timestamps();
-
-            $table->index(['user_id', 'status']);
         });
     }
 

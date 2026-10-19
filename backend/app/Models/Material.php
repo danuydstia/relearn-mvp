@@ -6,59 +6,36 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
     'user_id',
-    'original_name',
-    'stored_name',
-    'mime_type',
-    'size',
-    'disk',
-    'path',
+    'title',
+    'file_path',
+    'file_type',
     'status',
-    'failure_reason',
 ])]
 class Material extends Model
 {
     use HasFactory;
 
-    // Konstanta status pemrosesan material
-    const STATUS_UPLOADED = 'uploaded';
-
-    const STATUS_PROCESSING = 'processing';
-
-    const STATUS_COMPLETED = 'completed';
-
-    const STATUS_FAILED = 'failed';
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'size' => 'integer',
-        ];
-    }
-
-    // ============ Relations ============
+    protected $appends = ['file_url'];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // ============ Helper Methods ============
-
-    public function isCompleted(): bool
+    protected function fileUrl(): Attribute
     {
-        return $this->status === self::STATUS_COMPLETED;
-    }
+        return Attribute::get(function (): ?string {
+            if (! $this->file_path) {
+                return null;
+            }
 
-    public function isFailed(): bool
-    {
-        return $this->status === self::STATUS_FAILED;
+            // Gunakan disk supabase_materials
+            return Storage::disk('supabase_materials')->url($this->file_path);
+        });
     }
 }
