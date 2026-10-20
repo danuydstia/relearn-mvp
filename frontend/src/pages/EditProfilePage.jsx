@@ -4,6 +4,7 @@ import { CircleAlert } from 'lucide-react'
 import Avatar from '../components/ui/Avatar.jsx'
 import Button from '../components/ui/Button.jsx'
 import Card from '../components/ui/Card.jsx'
+import ModalAlert from '../components/ui/ModalAlert.jsx'
 import IdentityPreview from '../components/profile/IdentityPreview.jsx'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -30,7 +31,6 @@ export default function EditProfilePage() {
   const [submitting, setSubmitting] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
-  const redirectRef = useRef(null)
 
   const fileRef = useRef(null)
   const [avatarFile, setAvatarFile] = useState(null)
@@ -49,7 +49,6 @@ export default function EditProfilePage() {
   const showFieldError = touched && !isValid
   const previewName = trimmed || user?.name || 'Student'
 
-  useEffect(() => () => clearTimeout(redirectRef.current), [])
 
   const handleAvatarFile = (event) => {
     const file = event.target.files?.[0]
@@ -76,7 +75,6 @@ export default function EditProfilePage() {
         setAvatarPreview(null)
       }
       setSaved(true)
-      redirectRef.current = setTimeout(() => navigate('/profile'), 1200)
     } catch (err) {
       const res = err.response
       const first = res?.data?.errors?.name?.[0] || res?.data?.errors?.avatar?.[0]
@@ -101,14 +99,16 @@ export default function EditProfilePage() {
           </p>
         </div>
 
-        {saved && (
-          <p
-            role="status"
-            className="flex self-start rounded-[6px] bg-[#edf7f1] px-2 py-[3px] text-[11px] leading-[1.5] font-normal whitespace-nowrap text-[#217353]"
-          >
-            Profile updated
-          </p>
-        )}
+        <ModalAlert
+          isOpen={saved}
+          type="success"
+          title="Profil Berhasil Diperbarui"
+          description="Perubahan informasi profil kamu telah berhasil disimpan."
+          confirmText="Kembali ke Profil"
+          cancelText="Tetap di Sini"
+          onConfirm={() => navigate('/profile')}
+          onClose={() => setSaved(false)}
+        />
 
         {error && (
           <div
