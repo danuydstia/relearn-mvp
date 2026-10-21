@@ -7,6 +7,13 @@ import Card from '../components/ui/Card.jsx'
 import ModalAlert from '../components/ui/ModalAlert.jsx'
 import IdentityPreview from '../components/profile/IdentityPreview.jsx'
 import { useAuth } from '../contexts/AuthContext'
+import ava1 from '../assets/avatar/ava1.png'
+import ava2 from '../assets/avatar/ava2.png'
+
+const DEFAULT_AVATARS = [
+  { id: 'ava1', label: 'Avatar 1', src: ava1, filename: 'ava1.png' },
+  { id: 'ava2', label: 'Avatar 2', src: ava2, filename: 'ava2.png' },
+]
 
 /**
  * EditProfilePage — "Re:Learn · Edit Profile" (design 60:9127 desktop,
@@ -36,10 +43,13 @@ export default function EditProfilePage() {
   const [avatarFile, setAvatarFile] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [avatarError, setAvatarError] = useState('')
+  const [selectedDefaultAvatar, setSelectedDefaultAvatar] = useState(null)
 
   useEffect(
     () => () => {
-      if (avatarPreview) URL.revokeObjectURL(avatarPreview)
+      if (avatarPreview && avatarPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(avatarPreview)
+      }
     },
     [avatarPreview],
   )
@@ -49,7 +59,6 @@ export default function EditProfilePage() {
   const showFieldError = touched && !isValid
   const previewName = trimmed || user?.name || 'Student'
 
-
   const handleAvatarFile = (event) => {
     const file = event.target.files?.[0]
     event.target.value = '' // biar bisa pilih file yang sama lagi
@@ -57,8 +66,23 @@ export default function EditProfilePage() {
     if (!file.type.startsWith('image/')) return setAvatarError('File harus berupa gambar.')
     if (file.size > 2 * 1024 * 1024) return setAvatarError('Ukuran maksimal 2MB.')
     setAvatarError('')
+    setSelectedDefaultAvatar(null)
     setAvatarFile(file) // disimpan dulu, di-upload saat Save
     setAvatarPreview(URL.createObjectURL(file))
+  }
+
+  const handleSelectDefaultAvatar = async (item) => {
+    try {
+      setAvatarError('')
+      const response = await fetch(item.src)
+      const blob = await response.blob()
+      const file = new File([blob], item.filename, { type: blob.type || 'image/png' })
+      setSelectedDefaultAvatar(item.id)
+      setAvatarFile(file)
+      setAvatarPreview(item.src)
+    } catch {
+      setAvatarError('Gagal memilih avatar default.')
+    }
   }
 
   const submit = async () => {
@@ -184,6 +208,37 @@ export default function EditProfilePage() {
                     )}
                   </div>
                 </div>
+
+                <div className="mt-1 flex flex-col gap-2">
+                  <span className="text-[12px] font-medium text-[#686b73]">
+                    Atau pilih avatar default:
+                  </span>
+                  <div className="flex items-center gap-3">
+                    {DEFAULT_AVATARS.map((item) => {
+                      const isSelected = selectedDefaultAvatar === item.id
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleSelectDefaultAvatar(item)}
+                          disabled={submitting}
+                          aria-label={`Pilih ${item.label}`}
+                          className={`group relative flex h-12 w-12 items-center justify-center rounded-full border-2 p-0.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                            isSelected
+                              ? 'border-[#0033ff] ring-2 ring-[#0033ff]/20'
+                              : 'border-[#dad9d4] hover:border-[#8a8d94]'
+                          }`}
+                        >
+                          <img
+                            src={item.src}
+                            alt={item.label}
+                            className="h-full w-full rounded-full object-cover"
+                          />
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
 
               <div className="h-px w-full shrink-0 bg-[#dad9d4]" />
@@ -238,10 +293,11 @@ export default function EditProfilePage() {
               <div className="flex w-full flex-col gap-3 md:flex-row">
                 <Button
                   type="submit"
+                  loading={submitting}
                   disabled={!isValid || submitting}
                   className="w-full md:w-[144px]"
                 >
-                  Save
+                  {submitting ? 'Saving…' : 'Save'}
                 </Button>
                 <Button
                   as={Link}

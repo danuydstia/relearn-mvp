@@ -30,17 +30,26 @@ export default function Button({
   size = 'md',
   className = '',
   type = 'button',
+  loading = false,
+  disabled = false,
   children,
   ...props
 }) {
   return (
     <Tag
       type={Tag === 'button' ? type : undefined}
+      disabled={disabled || loading}
       className={`inline-flex items-center justify-center gap-2 rounded-[10px] border border-solid text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 ease-out ${
         SIZES[size] ?? SIZES.md
       } ${VARIANTS[variant] ?? VARIANTS.primary} ${DISABLED} ${className}`}
       {...props}
     >
+      {loading && (
+        <span
+          className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent shrink-0"
+          aria-hidden="true"
+        />
+      )}
       {children}
     </Tag>
   )

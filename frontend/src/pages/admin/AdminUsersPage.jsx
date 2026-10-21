@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import SummaryCard from '../../components/admin/SummaryCard.jsx'
 import TablePagination from '../../components/admin/TablePagination.jsx'
+import LoadingSpinner from '../../components/ui/LoadingSpinner.jsx'
 import UserFilters from '../../components/admin/UserFilters.jsx'
 import UserTable from '../../components/admin/UserTable.jsx'
 import { fetchAdminUsers } from '../../lib/admin'
@@ -101,8 +102,8 @@ export default function AdminUsersPage() {
 
   if (!data) {
     return (
-      <div className="flex w-full flex-1 items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-2 border-[#dde3ff] border-t-[#0033ff]" />
+      <div className="flex w-full flex-1 items-center justify-center py-20">
+        <LoadingSpinner size="lg" />
       </div>
     )
   }

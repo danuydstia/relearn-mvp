@@ -19,7 +19,7 @@ export default function UploadMaterialEmptyState({ onUpload, uploading = false }
           Start by uploading your first learning material. The AI will assist you according to your
           preferences.
         </p>
-        <Button size="sm" onClick={onUpload} disabled={uploading}>
+        <Button size="sm" onClick={onUpload} loading={uploading} disabled={uploading}>
           {uploading ? 'Uploading…' : '+ Input Your Material'}
         </Button>
       </div>

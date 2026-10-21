@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import LoadingSpinner from '../ui/LoadingSpinner.jsx'
 
 /**
  * ProtectedRoute — guards authenticated app routes.
@@ -12,7 +13,7 @@ export default function ProtectedRoute({ children }) {
   if (loading) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-[#f8f7f3]">
-        <div className="size-8 animate-spin rounded-full border-2 border-[#dde3ff] border-t-[#0033ff]" />
+        <LoadingSpinner size="md" />
       </div>
     )
   }

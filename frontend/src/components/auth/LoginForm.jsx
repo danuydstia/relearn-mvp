@@ -146,8 +146,11 @@ function LoginForm({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex h-14 w-full items-center justify-center rounded-[12px] border-0 bg-[#03f] px-6 text-[15px] font-semibold leading-normal text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2652ff] hover:shadow-md active:translate-y-0 cursor-pointer"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-[12px] border-0 bg-[#03f] px-6 text-[15px] font-semibold leading-normal text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#2652ff] hover:shadow-md active:translate-y-0 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
+              {isSubmitting && (
+                <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" aria-hidden="true" />
+              )}
               {isSubmitting ? 'Logging in…' : 'Log in'}
             </button>
             <div

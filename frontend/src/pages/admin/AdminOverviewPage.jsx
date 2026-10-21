@@ -16,6 +16,7 @@ import KpiCard from '../../components/admin/KpiCard.jsx'
 import StatusBadge from '../../components/admin/StatusBadge.jsx'
 import TrendChart from '../../components/admin/TrendChart.jsx'
 import { fetchAdminOverview } from '../../lib/admin'
+import LoadingSpinner from '../../components/ui/LoadingSpinner.jsx'
 
 const format = (value) => new Intl.NumberFormat('en-US').format(value)
 
@@ -128,8 +129,8 @@ export default function AdminOverviewPage() {
 
   if (!data) {
     return (
-      <div className="flex w-full flex-1 items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-2 border-[#dde3ff] border-t-[#0033ff]" />
+      <div className="flex w-full flex-1 items-center justify-center py-20">
+        <LoadingSpinner size="lg" />
       </div>
     )
   }
