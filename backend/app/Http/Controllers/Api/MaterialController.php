@@ -13,7 +13,8 @@ class MaterialController extends Controller
     public function index(Request $request): JsonResponse
     {
         $materials = $request->user()->materials()->latest()->get();
-        return response()->json($materials);
+
+        return response()->json(['data' => $materials]);
     }
 
     public function store(Request $request): JsonResponse
@@ -25,12 +26,12 @@ class MaterialController extends Controller
 
         $user = $request->user();
         $file = $request->file('file');
-        
+
         // Menggunakan disk supabase_materials
         $disk = Storage::disk('supabase_materials');
 
         $filename = $file->hashName();
-        $path = 'materials/' . $filename;
+        $path = 'materials/'.$filename;
 
         $disk->putFileAs('materials', $file, $filename, 'public');
 
@@ -38,12 +39,14 @@ class MaterialController extends Controller
             'title' => $validated['title'],
             'file_path' => $path,
             'file_type' => $file->getClientOriginalExtension(),
-            'status' => 'pending',
+            // The file is stored before this insert and there is no processing
+            // pipeline yet, so the upload is already complete.
+            'status' => Material::STATUS_COMPLETED,
         ]);
 
         return response()->json([
             'message' => 'Material uploaded successfully',
-            'data' => $material
+            'data' => $material,
         ], 201);
     }
 

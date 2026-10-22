@@ -20,13 +20,10 @@ class MaterialFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'original_name' => fake()->word().'.pdf',
-            'stored_name' => fake()->uuid().'.pdf',
-            'mime_type' => 'application/pdf',
-            'size' => fake()->numberBetween(1024, 5_000_000),
-            'disk' => 'local',
-            'path' => 'materials/'.fake()->uuid().'.pdf',
-            'status' => Material::STATUS_UPLOADED,
+            'title' => fake()->sentence(3),
+            'file_path' => 'materials/'.fake()->uuid().'.pdf',
+            'file_type' => 'pdf',
+            'status' => Material::STATUS_PENDING,
         ];
     }
 
@@ -47,7 +44,6 @@ class MaterialFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => Material::STATUS_FAILED,
-            'failure_reason' => fake()->sentence(),
         ]);
     }
 }

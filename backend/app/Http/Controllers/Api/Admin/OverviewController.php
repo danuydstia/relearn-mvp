@@ -44,8 +44,9 @@ class OverviewController extends Controller
             'user_growth' => $growth,
             'materials' => [
                 'total' => Material::query()->count(),
+                // Uploads are synchronous, so pending materials are still in flight.
                 'processing' => Material::query()
-                    ->where('status', Material::STATUS_PROCESSING)
+                    ->whereIn('status', [Material::STATUS_PENDING, Material::STATUS_PROCESSING])
                     ->count(),
                 'failed' => Material::query()
                     ->where('status', Material::STATUS_FAILED)

@@ -6,6 +6,7 @@ import LearningPerformance from '../components/dashboard/LearningPerformance.jsx
 import YourCommunity from '../components/dashboard/YourCommunity.jsx'
 import ProgressAchievements from '../components/dashboard/ProgressAchievements.jsx'
 import AccountUsage from '../components/dashboard/AccountUsage.jsx'
+import UploadMaterialModal from '../components/materials/UploadMaterialModal.jsx'
 import { ACCEPTED_MATERIAL_TYPES, listMaterials, uploadMaterial } from '../lib/materials'
 
 /**
@@ -28,7 +29,9 @@ export default function DashboardPage() {
   const fileInputRef = useRef(null)
   const [materials, setMaterials] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadingName, setUploadingName] = useState('')
   const [uploadError, setUploadError] = useState('')
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -47,7 +50,9 @@ export default function DashboardPage() {
     event.target.value = ''
     if (!file) return
 
+    setIsUploadModalOpen(false)
     setUploading(true)
+    setUploadingName(file.name)
     setUploadError('')
     try {
       const material = await uploadMaterial(file)
@@ -58,10 +63,9 @@ export default function DashboardPage() {
       setUploadError(first || res?.data?.message || 'Upload failed. Please try again.')
     } finally {
       setUploading(false)
+      setUploadingName('')
     }
   }
-
-  const hasNoMaterials = Array.isArray(materials) && materials.length === 0
 
   return (
     <div className="flex w-full flex-col px-6 pt-7 pb-8 md:px-8 md:py-8 lg:px-10 lg:py-10">
@@ -69,7 +73,7 @@ export default function DashboardPage() {
           desktop content is bounded rather than stretched (60:9231). No effect
           until the viewport exceeds ~1552px. */}
       <div className="flex w-full max-w-[1128px] flex-col gap-8">
-        <LearningInvitation onNewSession={openUploadPicker} />
+        <LearningInvitation onNewSession={() => setIsUploadModalOpen(true)} />
 
         {uploadError && (
           <p className="text-[13px] font-medium text-[#b42318]" role="alert">
@@ -82,9 +86,10 @@ export default function DashboardPage() {
           <div className="flex w-full min-w-0 flex-col gap-8 lg:flex-1 lg:gap-7">
             <ContinueLearning />
             <RecentLearning
-              showEmptyState={hasNoMaterials}
-              onUpload={openUploadPicker}
+              materials={materials}
               uploading={uploading}
+              uploadingName={uploadingName}
+              onUpload={() => setIsUploadModalOpen(true)}
             />
           </div>
 
@@ -111,6 +116,12 @@ export default function DashboardPage() {
           accept={ACCEPTED_MATERIAL_TYPES}
           className="hidden"
           onChange={handleFileSelected}
+        />
+
+        <UploadMaterialModal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          onChooseFile={openUploadPicker}
         />
       </div>
     </div>

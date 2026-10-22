@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
@@ -19,6 +19,14 @@ use Illuminate\Support\Facades\Storage;
 class Material extends Model
 {
     use HasFactory;
+
+    const STATUS_PENDING = 'pending';
+
+    const STATUS_PROCESSING = 'processing';
+
+    const STATUS_COMPLETED = 'completed';
+
+    const STATUS_FAILED = 'failed';
 
     protected $appends = ['file_url'];
 

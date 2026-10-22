@@ -35,26 +35,28 @@ class MaterialTest extends TestCase
 
     public function test_user_can_upload_a_pdf_material(): void
     {
-        Storage::fake('local');
+        Storage::fake('supabase_materials');
 
         $user = User::factory()->create();
 
         $response = $this->actingAsStudent($user)
             ->postJson('/api/v1/materials', [
+                'title' => 'Lecture 04',
                 'file' => UploadedFile::fake()->create('lecture-04.pdf', 512, 'application/pdf'),
             ]);
 
         $response
             ->assertCreated()
-            ->assertJsonPath('data.status', Material::STATUS_UPLOADED)
-            ->assertJsonPath('data.original_name', 'lecture-04.pdf');
+            ->assertJsonPath('data.status', Material::STATUS_COMPLETED)
+            ->assertJsonPath('data.title', 'Lecture 04');
 
         $this->assertDatabaseHas('materials', [
             'user_id' => $user->id,
-            'original_name' => 'lecture-04.pdf',
+            'title' => 'Lecture 04',
+            'file_type' => 'pdf',
         ]);
 
-        Storage::disk('local')->assertExists($response->json('data.path'));
+        Storage::disk('supabase_materials')->assertExists($response->json('data.file_path'));
     }
 
     public function test_unsupported_file_type_is_rejected(): void
@@ -99,25 +101,25 @@ class MaterialTest extends TestCase
         $this->actingAsStudent($user)
             ->getJson("/api/v1/materials/{$material->id}")
             ->assertOk()
-            ->assertJsonPath('data.status', Material::STATUS_COMPLETED);
+            ->assertJsonPath('status', Material::STATUS_COMPLETED);
     }
 
     public function test_user_can_delete_their_material_and_its_file(): void
     {
-        Storage::fake('local');
+        Storage::fake('supabase_materials');
 
         $user = User::factory()->create();
         $material = Material::factory()->for($user)->create([
-            'path' => 'materials/to-delete.pdf',
+            'file_path' => 'materials/to-delete.pdf',
         ]);
-        Storage::disk('local')->put('materials/to-delete.pdf', 'contents');
+        Storage::disk('supabase_materials')->put('materials/to-delete.pdf', 'contents');
 
         $this->actingAsStudent($user)
             ->deleteJson("/api/v1/materials/{$material->id}")
             ->assertOk();
 
         $this->assertDatabaseMissing('materials', ['id' => $material->id]);
-        Storage::disk('local')->assertMissing('materials/to-delete.pdf');
+        Storage::disk('supabase_materials')->assertMissing('materials/to-delete.pdf');
     }
 
     /**

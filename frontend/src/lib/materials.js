@@ -13,6 +13,8 @@ export async function listMaterials() {
  */
 export async function uploadMaterial(file, onProgress) {
   const form = new FormData()
+  // The API requires a title; the design has no title field, so derive it.
+  form.append('title', file.name.replace(/\.[^.]+$/, '') || file.name)
   form.append('file', file)
 
   const res = await api.post('/materials', form, {
@@ -31,4 +33,4 @@ export async function deleteMaterial(id) {
   await api.delete(`/materials/${id}`)
 }
 
-export const ACCEPTED_MATERIAL_TYPES = '.pdf,.docx,.pptx'
+export const ACCEPTED_MATERIAL_TYPES = '.pdf,.doc,.docx,.ppt,.pptx'
