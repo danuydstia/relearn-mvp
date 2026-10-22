@@ -14,7 +14,8 @@
     "measure:dashboard": "node scripts/measure-dashboard.mjs",
     "measure:responsive": "node scripts/measure-responsive.mjs",
     "verify:plan": "node scripts/verify-plan.mjs",
-    "verify:admin": "node scripts/verify-admin.mjs"
+    "verify:admin": "node scripts/verify-admin.mjs",
+    "verify:learning": "node scripts/verify-learning.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

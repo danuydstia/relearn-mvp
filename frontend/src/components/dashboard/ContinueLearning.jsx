@@ -1,9 +1,11 @@
+import { Link } from 'react-router-dom'
 import { Brain, Database } from 'lucide-react'
 import Card from '../ui/Card.jsx'
 import Button from '../ui/Button.jsx'
 import SectionHeading from '../ui/SectionHeading.jsx'
 import TextAction from '../ui/TextAction.jsx'
 import ProgressTrack from '../ui/ProgressTrack.jsx'
+import { learningPathUrl, moduleUrl } from '../../lib/learningPath'
 
 /**
  * ContinueLearning — design nodes 2:7975 (heading), 2:7980 + 2:8004 (cards);
@@ -65,11 +67,11 @@ function ProgressBlock({ value, label }) {
 }
 
 /** Mobile footer: the activity stamp sits above a full-width CTA. */
-function StackedAction({ activity, variant }) {
+function StackedAction({ activity, variant, to }) {
   return (
     <div className="flex w-full flex-col gap-3">
       <p className="w-full text-[11px] leading-[1.5] font-normal text-[#686b73]">{activity}</p>
-      <Button variant={variant} className="w-full">
+      <Button as={to ? Link : 'button'} to={to} variant={variant} className="w-full">
         Continue →
       </Button>
     </div>
@@ -82,7 +84,7 @@ export default function ContinueLearning() {
       <SectionHeading
         title="Continue Learning"
         action={
-          <TextAction>
+          <TextAction as={Link} to={learningPathUrl()}>
             <span className="md:hidden">View all</span>
             <span className="hidden md:inline">My Learning →</span>
           </TextAction>
@@ -102,7 +104,7 @@ export default function ContinueLearning() {
           next="Next · Functional dependencies"
         />
         <ProgressBlock value={50} label="4 of 8 topics" />
-        <StackedAction activity="Last activity · Yesterday" />
+        <StackedAction activity="Last activity · Yesterday" to={moduleUrl()} />
       </Card>
 
       {/* Tablet + desktop (2:7980) */}
@@ -126,7 +128,9 @@ export default function ContinueLearning() {
           <p className="min-w-px flex-1 text-[11px] leading-[1.5] font-normal text-[#686b73]">
             Continue from your last topic.
           </p>
-          <Button className="shrink-0">Continue →</Button>
+          <Button as={Link} to={moduleUrl()} className="shrink-0">
+            Continue →
+          </Button>
         </div>
       </Card>
 

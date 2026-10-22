@@ -6,6 +6,8 @@ import ProtectedRoute from './components/auth/ProtectedRoute.jsx'
 import AuthLayout from './components/layout/AuthLayout.jsx'
 import AppShell from './components/layout/AppShell.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
+import LearningPathPage from './pages/LearningPathPage.jsx'
+import ModuleLessonPage from './pages/ModuleLessonPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import EditProfilePage from './pages/EditProfilePage.jsx'
 import PlaceholderPage from './pages/PlaceholderPage.jsx'
@@ -21,6 +23,7 @@ import {
   landingPathFor,
 } from './lib/adminNavigation'
 import { useAuth } from './contexts/AuthContext'
+import { learningPathUrl } from './lib/learningPath'
 
 // ─── Inline handler untuk Google callback (tanpa halaman terpisah) ───
 function GoogleCallbackHandler() {
@@ -74,7 +77,6 @@ function GoogleCallbackHandler() {
 
 // ─── Sidebar destinations that don't have a design yet ───
 const PLACEHOLDER_ROUTES = [
-  { path: '/learning', title: 'My Learning', description: 'Saved learning paths you can revisit and continue.' },
   { path: '/materials', title: 'Materials', description: 'Uploaded PDF, DOCX and PPTX materials and their processing status.' },
   { path: '/quizzes', title: 'Quizzes', description: 'Quizzes generated from your materials, and the results of past attempts.' },
   { path: '/communities', title: 'Communities', description: 'Study circles you belong to, their discussions and shared resources.' },
@@ -184,6 +186,37 @@ function App() {
           <ProtectedRoute>
             <AppShell title="Dashboard">
               <DashboardPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/learning"
+        element={
+          <ProtectedRoute>
+            <Navigate to={learningPathUrl()} replace />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/learning/:pathSlug"
+        element={
+          <ProtectedRoute>
+            <AppShell title="My Learning">
+              <LearningPathPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/learning/:pathSlug/modules/:moduleSlug"
+        element={
+          <ProtectedRoute>
+            <AppShell title="My Learning">
+              <ModuleLessonPage />
             </AppShell>
           </ProtectedRoute>
         }
