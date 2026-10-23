@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Topic;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
