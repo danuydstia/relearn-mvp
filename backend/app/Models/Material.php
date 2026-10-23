@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Relations\HasMany; 
 
 #[Fillable([
     'user_id',
@@ -46,4 +47,10 @@ class Material extends Model
             return Storage::disk('supabase_materials')->url($this->file_path);
         });
     }
+
+    public function learningPaths(): HasMany
+    {
+        return $this->hasMany(LearningPath::class);
+    }
+
 }
