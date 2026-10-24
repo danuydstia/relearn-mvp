@@ -1,131 +1,129 @@
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
+import Avatar from '../ui/Avatar.jsx'
 import SubscriptionBadge from '../ui/SubscriptionBadge.jsx'
 import { useAuth } from '../../contexts/AuthContext'
 import { NAV_GROUPS, ADMIN_NAV_ITEM } from '../../lib/navigation'
 
 /**
- * Sidebar — design node 2:7900 ("Re:Learn/Sidebar").
- * Desktop (≥1024px): 232px, wordmark, group labels, icon + label items,
- *   account-usage block pinned below the nav.
- * Tablet (768–1023px, design 2:6872): 88px, "R" mark, icon-only items with no
- *   group labels and no account-usage block — that block moves into the page.
- * Mobile (<768px): not rendered at all; the mobile tab bar takes over.
+ * Sidebar.
+ * Desktop (≥1024px): lebar 280px. Header: wordmark teks, tagline, baris user
+ *   (nama, badge plan, avatar kotak → link ke Profile), border bawah 2px.
+ *   Lalu grup menu. Blok AI usage sudah pindah ke kartu lime di dashboard.
+ * Tablet (768–1023px): rail ikon saja, tanda "R", tanpa label grup.
+ * Mobile (<768px): tidak dirender; tab bar mobile yang tampil.
  *
- * Note: the "Log out" action below Settings is an addition on top of the
- * design, which only lists Settings under Account.
+ * Catatan: aksi "Log out" di bawah Settings adalah tambahan di luar desain.
  */
 const NAV_ITEM_BASE =
-  'flex h-11 w-full items-center justify-center rounded-[6px] text-[13px] font-medium transition-colors duration-150 ease-out cursor-pointer lg:justify-start lg:gap-3 lg:px-3'
+  'flex h-11 w-full items-center justify-center rounded-[8px] border border-solid text-[12px] transition-colors duration-150 ease-out cursor-pointer lg:h-[38px] lg:justify-start lg:gap-[7px] lg:px-[10px]'
 
-/** Link styling — the active item picks up the brand tint. */
+/** Item aktif: lime + outline ink. */
 const navItemClass = (isActive = false) =>
   `${NAV_ITEM_BASE} ${
-    isActive ? 'bg-[#eef1ff] text-[#0033ff]' : 'bg-white text-[#17191f] hover:bg-[#f8f7f3]'
+    isActive
+      ? 'border-[#171916] bg-[#d5f35b] font-extrabold text-[#171916]'
+      : 'border-transparent bg-transparent font-medium text-[#171916] hover:bg-[#f2f1ec]'
   }`
 
-/** Destructive action styling (Log out) — reuses the danger token + error-soft hover. */
-const navActionClass = `${NAV_ITEM_BASE} text-[#b42318] hover:bg-[#fff5f2]`
+/** Aksi destruktif (Log out). */
+const navActionClass = `${NAV_ITEM_BASE} border-transparent font-medium text-[#b42318] hover:bg-[#fff5f2]`
 
-/** Admin entry icon, rendered only for admin accounts. */
+/** Ikon entri admin, hanya untuk akun admin. */
 const AdminNavIcon = ADMIN_NAV_ITEM.icon
 
 export default function Sidebar() {
   const { user, logout } = useAuth()
-  const isPro = user?.plan === 'pro'
+  const name = user?.name || 'Student'
 
   return (
-    <aside className="sticky top-0 flex h-screen w-full flex-col gap-8 overflow-y-auto bg-white px-[18px] pt-8 pb-7 lg:px-5">
-      {/* Desktop wordmark; the tablet rail shows the compact "R" mark instead. */}
-      <img
-        src="/relearn-full-logo.svg"
-        alt="Re:Learn"
-        className="hidden h-6 w-auto self-start lg:block"
-      />
-      <img src="/relearn-logo.svg" alt="Re:Learn" className="block h-6 w-auto self-start lg:hidden" />
+    <aside className="sticky top-0 flex h-screen w-full flex-col overflow-y-auto border-r-2 border-solid border-[#171916] bg-white">
+      <div className="flex w-full flex-col gap-4 border-b-2 border-solid border-[#171916] px-[18px] pt-6 pb-5 lg:px-5">
+        {/* Desktop: wordmark teks; tablet: tanda "R". */}
+        <div className="hidden items-center gap-3 lg:flex">
+          <span className="text-[38px] leading-none font-black text-[#171916]">Re:Learn</span>
+          <span className="h-8 w-[2px] bg-[#171916]" aria-hidden="true" />
+        </div>
+        <img src="/relearn-logo.svg" alt="Re:Learn" className="block h-6 w-auto self-start lg:hidden" />
 
-      <nav className="flex w-full flex-col gap-6">
+        <p className="hidden text-[10px] leading-[15px] font-black text-[#62665c] lg:block">
+          Your learning,
+          <br />
+          in motion.
+        </p>
+
+        <Link
+          to="/profile"
+          aria-label={`${name} — profile`}
+          className="hidden w-full items-center gap-3 rounded-[8px] outline-offset-4 lg:flex"
+        >
+          <p className="min-w-0 truncate text-[13px] font-bold text-[#171916]">{name}</p>
+          <SubscriptionBadge plan={user?.plan} />
+          <Avatar name={name} src={user?.avatar_url} shape="square" className="ml-auto" />
+        </Link>
+      </div>
+
+      <nav className="flex w-full flex-col gap-6 px-[18px] py-5 lg:p-5">
         {NAV_GROUPS.map((group) => {
           const ActionIcon = group.action?.icon
 
           return (
             <div key={group.label} className="flex w-full flex-col gap-2">
-              <p className="hidden shrink-0 text-[10px] font-medium uppercase text-[#686b73] lg:block">
+              <p className="hidden shrink-0 text-[9px] font-black uppercase text-[#62665c] lg:block">
                 {group.label}
               </p>
-              {group.items.map(({ to, label, icon: Icon, end }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={end}
-                  title={label}
-                  className={({ isActive }) => navItemClass(isActive)}
-                >
-                  <Icon size={20} strokeWidth={1.75} className="shrink-0" aria-hidden="true" />
-                  <span className="hidden whitespace-nowrap lg:inline">{label}</span>
-                </NavLink>
-              ))}
-              {group.action && user?.role === 'admin' && (
-                <NavLink
-                  to={ADMIN_NAV_ITEM.to}
-                  title={ADMIN_NAV_ITEM.label}
-                  className={({ isActive }) => navItemClass(isActive)}
-                >
-                  <AdminNavIcon
-                    size={20}
-                    strokeWidth={1.75}
-                    className="shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="hidden whitespace-nowrap lg:inline">
-                    {ADMIN_NAV_ITEM.label}
-                  </span>
-                </NavLink>
-              )}
-              {group.action && (
-                <button
-                  type="button"
-                  onClick={logout}
-                  title={group.action.label}
-                  className={navActionClass}
-                >
-                  <ActionIcon
-                    size={20}
-                    strokeWidth={1.75}
-                    className="shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="hidden whitespace-nowrap lg:inline">{group.action.label}</span>
-                </button>
-              )}
+              <div className="flex w-full flex-col gap-1">
+                {group.items.map(({ to, label, icon: Icon, end }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={end}
+                    title={label}
+                    className={({ isActive }) => navItemClass(isActive)}
+                  >
+                    <Icon size={16} strokeWidth={1.75} className="shrink-0" aria-hidden="true" />
+                    <span className="hidden whitespace-nowrap lg:inline">{label}</span>
+                  </NavLink>
+                ))}
+                {group.action && user?.role === 'admin' && (
+                  <NavLink
+                    to={ADMIN_NAV_ITEM.to}
+                    title={ADMIN_NAV_ITEM.label}
+                    className={({ isActive }) => navItemClass(isActive)}
+                  >
+                    <AdminNavIcon
+                      size={16}
+                      strokeWidth={1.75}
+                      className="shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span className="hidden whitespace-nowrap lg:inline">
+                      {ADMIN_NAV_ITEM.label}
+                    </span>
+                  </NavLink>
+                )}
+                {group.action && (
+                  <button
+                    type="button"
+                    onClick={logout}
+                    title={group.action.label}
+                    className={navActionClass}
+                  >
+                    <ActionIcon
+                      size={16}
+                      strokeWidth={1.75}
+                      className="shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span className="hidden whitespace-nowrap lg:inline">
+                      {group.action.label}
+                    </span>
+                  </button>
+                )}
+              </div>
             </div>
           )
         })}
       </nav>
-
-      <div className="hidden w-full shrink-0 flex-col gap-5 border-t border-solid border-[#dad9d4] pt-5 lg:flex">
-        <div className="flex w-full flex-col gap-2">
-          <div className="flex w-full items-start justify-between">
-            <p className="text-[12px] font-medium whitespace-nowrap text-[#17191f]">AI usage</p>
-            <SubscriptionBadge plan={user?.plan} />
-          </div>
-          <p className="w-full text-[12px] leading-[1.5] font-normal text-[#686b73]">
-            Usage details will appear here.
-          </p>
-          {!isPro && (
-            <div className="flex min-h-[44px] items-center">
-              <NavLink
-                to="/pro"
-                className="text-[12px] font-medium whitespace-nowrap text-[#0033ff] hover:underline"
-              >
-                Explore Pro →
-              </NavLink>
-            </div>
-          )}
-        </div>
-        <p className="w-full text-[11px] leading-[1.5] font-normal text-[#686b73]">
-          Your learning, in motion.
-        </p>
-      </div>
     </aside>
   )
 }

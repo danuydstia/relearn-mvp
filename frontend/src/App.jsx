@@ -11,6 +11,11 @@ import ModuleLessonPage from './pages/ModuleLessonPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import EditProfilePage from './pages/EditProfilePage.jsx'
 import PlaceholderPage from './pages/PlaceholderPage.jsx'
+
+// 1. Import your materials pages here
+import MaterialsPage from './pages/MaterialsPage.jsx'
+import SubjectDetailPage from './pages/SubjectDetailPage.jsx'
+
 import AdminLayout from './components/layout/AdminLayout.jsx'
 import AdminRoute from './components/auth/AdminRoute.jsx'
 import AdminOverviewPage from './pages/admin/AdminOverviewPage.jsx'
@@ -76,8 +81,8 @@ function GoogleCallbackHandler() {
 }
 
 // ─── Sidebar destinations that don't have a design yet ───
+// 2. Removed '/materials' from placeholder routes since it's now fully implemented
 const PLACEHOLDER_ROUTES = [
-  { path: '/materials', title: 'Materials', description: 'Uploaded PDF, DOCX and PPTX materials and their processing status.' },
   { path: '/quizzes', title: 'Quizzes', description: 'Quizzes generated from your materials, and the results of past attempts.' },
   { path: '/communities', title: 'Communities', description: 'Study circles you belong to, their discussions and shared resources.' },
   { path: '/progress', title: 'Progress', description: 'Your learning performance over time.' },
@@ -217,6 +222,28 @@ function App() {
           <ProtectedRoute>
             <AppShell title="My Learning">
               <ModuleLessonPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 3. Added Materials Routes with AppShell */}
+      <Route
+        path="/materials"
+        element={
+          <ProtectedRoute>
+            <AppShell title="Materials">
+              <MaterialsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/materials/:subjectSlug"
+        element={
+          <ProtectedRoute>
+            <AppShell title="Materials">
+              <SubjectDetailPage />
             </AppShell>
           </ProtectedRoute>
         }

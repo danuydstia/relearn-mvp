@@ -1,6 +1,5 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="Icon background">
-<rect width="64" height="64" rx="32" fill="#F0F3FF"/>
-<path id="Source icon" d="M23 20H33.2857L41 27.2V44H23V20ZM33.2857 21.2V28.4H39.7143V26H35.8571V21.2H33.2857Z" fill-rule="evenodd" clip-rule="evenodd" fill="#0033FF"/>
-</g>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1" y="1" width="62" height="62" rx="31" fill="#D5F35B"/>
+<rect x="1" y="1" width="62" height="62" rx="31" stroke="#171916" stroke-width="2"/>
+<path d="M23 20H33.2857L41 27.2V44H23V20ZM33.2857 21.2V28.4H39.7143V26H35.8571V21.2H33.2857Z" fill-rule="evenodd" clip-rule="evenodd" fill="#171916"/>
 </svg>

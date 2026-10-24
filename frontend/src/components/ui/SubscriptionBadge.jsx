@@ -1,14 +1,13 @@
 /**
- * SubscriptionBadge — "Free" / "Pro" pill.
- * Design: Subscription badge, bg #f2f1ec, px 9 / py 4, radius 6, 11px medium.
+ * SubscriptionBadge — pill "Free" / "Pro".
+ * Desain: lime #d5f35b, outline 1px ink, px 8 / py 4, 11px black.
+ * Free dan Pro tampil sama; bedanya hanya teks.
  */
 export default function SubscriptionBadge({ plan = 'Free', className = '' }) {
   const isPro = String(plan).toLowerCase() === 'pro'
   return (
     <span
-      className={`inline-flex shrink-0 items-center rounded-[6px] px-[9px] py-[4px] text-[11px] font-medium whitespace-nowrap ${
-        isPro ? 'bg-[#eef1ff] text-[#0033ff]' : 'bg-[#f2f1ec] text-[#686b73]'
-      } ${className}`}
+      className={`inline-flex shrink-0 items-center rounded-full border border-solid border-[#171916] bg-[#d5f35b] px-2 py-1 text-[11px] leading-[normal] font-black whitespace-nowrap text-[#171916] ${className}`}
     >
       {isPro ? 'Pro' : 'Free'}
     </span>

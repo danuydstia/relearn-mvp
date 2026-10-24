@@ -1,3 +1,5 @@
+/* Font Inter harus di baris paling atas, sebelum import lain */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
@@ -6,23 +8,28 @@
    screens render 1:1 with the design.
    ───────────────────────────────────────────────────────────── */
 @theme {
-  --font-sans: Montserrat, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: Inter, Montserrat, ui-sans-serif, system-ui, sans-serif;
 
   /* Text */
-  --color-ink: #17191f;
-  --color-muted: #686b73;
+  --color-ink: #171916;
+  --color-muted: #62665c;
   --color-subtle: #8a8d94;
 
   /* Surfaces & lines */
   --color-line: #dad9d4;
-  --color-canvas: #f8f7f3;
+  --color-canvas: #f7f7f2;
   --color-neutral-soft: #f2f1ec;
 
-  /* Brand */
+  /* Brand (lama, masih dipakai halaman yang belum didesain ulang) */
   --color-brand: #0033ff;
   --color-brand-hover: #2652ff;
   --color-brand-soft: #eef1ff;
   --color-brand-border: #dde3ff;
+
+  /* Neo-brutalist palette (desain baru) */
+  --color-edge: #171916;      /* border 2px, divider, outline */
+  --color-lime: #d5f35b;      /* tombol primer, item aktif, fill progress */
+  --color-lime-ink: #405c04;  /* link, eyebrow, label hijau tua */
 
   /* Status */
   --color-danger: #b42318;
@@ -33,14 +40,15 @@
   --radius-control: 6px;
   --radius-field: 12px;
   --radius-card: 12px;
+  --radius-neo: 8px;
 }
 
 :root {
-  font-family: Montserrat, sans-serif;
+  font-family: Inter, Montserrat, sans-serif;
   line-height: 1;
   font-weight: 400;
-  color: #17191f;
-  background: #f8f7f3;
+  color: #171916;
+  background: #f7f7f2;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

@@ -1,29 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
 import LearningInvitation from '../components/dashboard/LearningInvitation.jsx'
 import ContinueLearning from '../components/dashboard/ContinueLearning.jsx'
-import RecentLearning from '../components/dashboard/RecentLearning.jsx'
 import LearningPerformance from '../components/dashboard/LearningPerformance.jsx'
+import RecentLearning from '../components/dashboard/RecentLearning.jsx'
 import YourCommunity from '../components/dashboard/YourCommunity.jsx'
 import ProgressAchievements from '../components/dashboard/ProgressAchievements.jsx'
-import AccountUsage from '../components/dashboard/AccountUsage.jsx'
+import MaterialStatus from '../components/dashboard/MaterialStatus.jsx'
 import UploadMaterialModal from '../components/materials/UploadMaterialModal.jsx'
 import { ACCEPTED_MATERIAL_TYPES, listMaterials, uploadMaterial } from '../lib/materials'
 
 /**
- * DashboardPage — "Learning home" (design 2:7899), mobile 2:6354, tablet 2:6913.
+ * DashboardPage — "Learning home" (neo-brutalist).
  *
- * Desktop (≥1024px): 40px gutters, the invitation spans the width, then a left
- *   learning column (Continue + Recent) beside a 340px reflection rail
- *   (Performance, Community, Progress). The AI-usage block lives in the sidebar.
- * Tablet (768–1023px): 32px gutters, everything stacks in one 808px column, but
- *   the reflection group splits into two 392px columns — Performance beside
- *   Community-over-Progress. AI usage becomes a card in the page flow.
- * Mobile (<768px): 24px gutters, a single 342px column throughout, 30px heading,
- *   and a footer note closing the page.
- *
- * The learning-path / performance / community blocks are the design's
- * illustrative content. Material upload is wired to the API, and the designed
- * "no content" state shows when the user has no materials.
+ * Urutan blok (satu kolom, gap 32px):
+ *   1. LearningInvitation  — hero + kartu lime (CTA upload, AI usage)
+ *   2. ContinueLearning    — kartu putih (808) + kartu hitam (252)
+ *   3. LearningPerformance — strip 3 panel
+ *   4. Grid 3 kolom (420 : 320 : 300): Recent Learning, Community, Progress
+ *   5. MaterialStatus      — empty / processing / failed (kondisional)
+ *   6. Catatan footer
+ * Di bawah 1024px semua menumpuk; baris 4 jadi 2 kolom di tablet.
+ * Gutter: 24px mobile, 32px tablet, 40px desktop.
  */
 export default function DashboardPage() {
   const fileInputRef = useRef(null)
@@ -68,45 +65,34 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex w-full flex-col px-6 pt-7 pb-8 md:px-8 md:py-8 lg:px-10 lg:py-10">
-      {/* Bounded to the design's 1128px "Content boundary" — the spec states the
-          desktop content is bounded rather than stretched (60:9231). No effect
-          until the viewport exceeds ~1552px. */}
+    <div className="flex w-full flex-col bg-[#f7f7f2] px-6 pt-7 pb-8 md:px-8 md:py-8 lg:px-10 lg:pt-9 lg:pb-7">
       <div className="flex w-full max-w-[1128px] flex-col gap-8">
         <LearningInvitation onNewSession={() => setIsUploadModalOpen(true)} />
 
         {uploadError && (
-          <p className="text-[13px] font-medium text-[#b42318]" role="alert">
+          <p className="text-[13px] font-bold text-[#b42318]" role="alert">
             {uploadError}
           </p>
         )}
 
-        <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-start lg:gap-7">
-          {/* Learning column */}
-          <div className="flex w-full min-w-0 flex-col gap-8 lg:flex-1 lg:gap-7">
-            <ContinueLearning />
-            <RecentLearning
-              materials={materials}
-              uploading={uploading}
-              uploadingName={uploadingName}
-              onUpload={() => setIsUploadModalOpen(true)}
-            />
-          </div>
+        <ContinueLearning />
 
-          {/* Reflection group — two equal columns on tablet, one 340px rail on desktop. */}
-          <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 md:items-start md:gap-6 lg:flex lg:w-[340px] lg:shrink-0 lg:flex-col lg:gap-7">
-            <LearningPerformance />
-            <div className="flex w-full flex-col gap-8 md:gap-6 lg:gap-7">
-              <YourCommunity />
-              <ProgressAchievements />
-            </div>
-          </div>
+        <LearningPerformance />
+
+        <div className="grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-[minmax(0,420fr)_minmax(0,320fr)_minmax(0,300fr)]">
+          <RecentLearning materials={materials} className="md:col-span-2 lg:col-span-1" />
+          <YourCommunity />
+          <ProgressAchievements />
         </div>
 
-        {/* Below 1024px the sidebar's AI-usage block and the design-review note
-            move into the page flow (design 2:7093 / 2:7102). */}
-        <AccountUsage className="lg:hidden" />
-        <p className="w-full text-[11px] leading-[1.5] font-normal text-[#686b73] lg:hidden">
+        <MaterialStatus
+          materials={materials}
+          uploading={uploading}
+          uploadingName={uploadingName}
+          onUpload={() => setIsUploadModalOpen(true)}
+        />
+
+        <p className="w-full text-[11px] font-black text-[#62665c] opacity-80">
           Example student data · For design review only
         </p>
 

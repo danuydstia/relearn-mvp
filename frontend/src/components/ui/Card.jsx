@@ -1,16 +1,16 @@
 /**
- * Card — white surface, 1px line border, 12px radius.
+ * Card — white surface, 2px ink outline, 8px radius.
  * Design: Learning cards / supporting components.
  *
- * The 1px line is an inset outline rather than a border. Figma strokes are
- * centred on the frame edge, so the design's padding measures from the frame's
- * full width — a 327px card has 287px of inner content at p-5, not 285. A real
- * border is inside the border-box and would eat a pixel on each side.
+ * The 2px line is an inset outline rather than a border, same as in Figma
+ * (outlineOffset -2px). Figma strokes are centred on the frame edge, so the
+ * design's padding measures from the frame's full width. A real border is
+ * inside the border-box and would eat pixels on each side.
  */
 export default function Card({ as: Tag = 'div', className = '', children, ...props }) {
   return (
     <Tag
-      className={`rounded-[12px] bg-white -outline-offset-1 outline outline-1 outline-solid outline-[#dad9d4] ${className}`}
+      className={`rounded-[8px] bg-white -outline-offset-2 outline outline-2 outline-solid outline-[#171916] ${className}`}
       {...props}
     >
       {children}

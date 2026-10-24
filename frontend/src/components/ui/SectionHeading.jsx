@@ -1,11 +1,11 @@
 /**
- * SectionHeading — dashboard section title (20px semibold) with an
- * optional right-aligned action. Design: "Section heading" 2:7976.
+ * SectionHeading — judul section dashboard (24px extrabold) + action opsional.
+ * `className` dipakai untuk menyamakan tinggi heading antar kolom.
  */
-export default function SectionHeading({ title, action }) {
+export default function SectionHeading({ title, action, className = '' }) {
   return (
-    <div className="flex w-full items-center justify-between">
-      <h2 className="text-[20px] leading-[normal] font-semibold text-[#17191f]">{title}</h2>
+    <div className={`flex w-full items-center justify-between ${className}`}>
+      <h2 className="text-[24px] leading-[1.2] font-extrabold text-[#171916]">{title}</h2>
       {action}
     </div>
   )

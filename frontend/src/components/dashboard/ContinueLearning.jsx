@@ -4,80 +4,14 @@ import Card from '../ui/Card.jsx'
 import Button from '../ui/Button.jsx'
 import SectionHeading from '../ui/SectionHeading.jsx'
 import TextAction from '../ui/TextAction.jsx'
-import ProgressTrack from '../ui/ProgressTrack.jsx'
+import SegmentedProgress from '../ui/SegmentedProgress.jsx'
 import { learningPathUrl, moduleUrl } from '../../lib/learningPath'
 
 /**
- * ContinueLearning — design nodes 2:7975 (heading), 2:7980 + 2:8004 (cards);
- * mobile 2:6364 with cards 2:6369 + 2:6392.
- *
- * The heading's action shortens from "My Learning →" to "View all" on mobile.
- *
- * The two path cards keep the same internal rhythm at every width (16px between
- * blocks, p-6), but their footers reflow below 768px:
- * - The featured card moves its activity stamp out of the label row and above a
- *   full-width primary button ("Last activity · Yesterday"), replacing the
- *   desktop's helper line + right-aligned button.
- * - The compact card abandons its horizontal icon/title/button row entirely and
- *   becomes a vertical card with a PSYCHOLOGY subject label — identical in
- *   shape to the featured one, minus the "Next ·" line and with a secondary CTA.
+ * ContinueLearning — dua kartu: featured (putih, lebar) + compact (hitam, sempit).
+ * Desktop (≥1024px): kolom 808 : 252. Di bawah itu menumpuk satu kolom.
+ * Action heading memendek dari "My Learning →" jadi "View all" di mobile.
  */
-
-function SubjectLabel({ icon: Icon, label }) {
-  return (
-    <div className="flex shrink-0 items-center gap-2">
-      <Icon size={20} strokeWidth={1.75} className="shrink-0 text-[#0033ff]" aria-hidden="true" />
-      <p className="text-[11px] leading-[normal] font-medium whitespace-nowrap text-[#0033ff]">
-        {label}
-      </p>
-    </div>
-  )
-}
-
-function PathDetails({ title, source, titleSize = 22 }) {
-  const titleClass = titleSize === 17 ? 'text-[17px]' : 'text-[22px]'
-  return (
-    <div className="flex w-full flex-col gap-1.5 leading-[1.5]">
-      <p className={`font-semibold text-[#17191f] ${titleClass}`}>{title}</p>
-      <p className="text-[12px] leading-[1.5] font-normal text-[#686b73]">{source}</p>
-    </div>
-  )
-}
-
-function TopicBlock({ topic, next }) {
-  return (
-    <div className="flex w-full flex-col gap-1 leading-[1.5]">
-      <p className="text-[11px] font-normal text-[#686b73]">CURRENT TOPIC</p>
-      <p className="text-[14px] font-medium text-[#17191f]">{topic}</p>
-      {next && <p className="text-[12px] font-normal text-[#686b73]">{next}</p>}
-    </div>
-  )
-}
-
-function ProgressBlock({ value, label }) {
-  return (
-    <div className="flex w-full flex-col gap-2">
-      <div className="flex w-full items-start justify-between text-[12px] leading-[normal] whitespace-nowrap">
-        <p className="font-normal text-[#686b73]">Path progress</p>
-        <p className="font-medium text-[#17191f]">{label}</p>
-      </div>
-      <ProgressTrack value={value} />
-    </div>
-  )
-}
-
-/** Mobile footer: the activity stamp sits above a full-width CTA. */
-function StackedAction({ activity, variant, to }) {
-  return (
-    <div className="flex w-full flex-col gap-3">
-      <p className="w-full text-[11px] leading-[1.5] font-normal text-[#686b73]">{activity}</p>
-      <Button as={to ? Link : 'button'} to={to} variant={variant} className="w-full">
-        Continue →
-      </Button>
-    </div>
-  )
-}
-
 export default function ContinueLearning() {
   return (
     <section className="flex w-full flex-col gap-4">
@@ -91,89 +25,90 @@ export default function ContinueLearning() {
         }
       />
 
-      {/* ── Featured learning path ── */}
-      {/* Mobile (2:6369) */}
-      <Card className="flex w-full flex-col gap-4 p-6 md:hidden">
-        <SubjectLabel icon={Database} label="COMPUTER SCIENCE" />
-        <PathDetails
-          title="Introduction to Database Systems"
-          source="Source · Database Systems — Lecture 04.pdf"
-        />
-        <TopicBlock
-          topic="Relational Database Design"
-          next="Next · Functional dependencies"
-        />
-        <ProgressBlock value={50} label="4 of 8 topics" />
-        <StackedAction activity="Last activity · Yesterday" to={moduleUrl()} />
-      </Card>
+      <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-[minmax(0,808fr)_minmax(0,252fr)]">
+        {/* ── Featured (putih) ── */}
+        <Card className="flex w-full flex-col gap-5 p-[26px]">
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Database size={18} strokeWidth={1.75} className="shrink-0 text-[#171916]" aria-hidden="true" />
+              <p className="text-[10px] leading-[1.4] font-black whitespace-nowrap text-[#62665c]">
+                COMPUTER SCIENCE
+              </p>
+            </div>
+            <p className="text-[10px] leading-[1.4] font-black whitespace-nowrap text-[#62665c]">
+              Yesterday
+            </p>
+          </div>
 
-      {/* Tablet + desktop (2:7980) */}
-      <Card className="hidden w-full flex-col gap-4 p-6 md:flex">
-        <div className="flex w-full items-center justify-between">
-          <SubjectLabel icon={Database} label="COMPUTER SCIENCE" />
-          <p className="text-[11px] leading-[normal] font-normal whitespace-nowrap text-[#686b73]">
-            Yesterday
-          </p>
-        </div>
-        <PathDetails
-          title="Introduction to Database Systems"
-          source="Source · Database Systems — Lecture 04.pdf"
-        />
-        <TopicBlock
-          topic="Relational Database Design"
-          next="Next · Functional dependencies"
-        />
-        <ProgressBlock value={50} label="4 of 8 topics" />
-        <div className="flex w-full items-center gap-3">
-          <p className="min-w-px flex-1 text-[11px] leading-[1.5] font-normal text-[#686b73]">
+          <div className="flex w-full flex-col gap-2">
+            <p className="text-[26px] leading-[1.08] font-extrabold text-[#171916] md:text-[34px]">
+              Introduction to Database Systems
+            </p>
+            <p className="text-[12px] leading-[1.5] font-normal text-[#62665c]">
+              Source · Database Systems — Lecture 04.pdf
+            </p>
+          </div>
+
+          <div className="flex w-full flex-col gap-4 border-y border-solid border-[#171916] py-4 md:flex-row md:items-center md:gap-6">
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <p className="text-[10px] leading-[1.4] font-black text-[#62665c]">CURRENT TOPIC</p>
+              <p className="text-[18px] font-bold text-[#171916]">Relational Database Design</p>
+              <p className="text-[12px] leading-[1.5] font-normal text-[#62665c]">
+                Next · Functional dependencies
+              </p>
+            </div>
+            <Button as={Link} to={moduleUrl()} className="shrink-0">
+              Continue →
+            </Button>
+          </div>
+
+          <div className="flex w-full flex-col gap-[9px]">
+            <div className="flex w-full items-start justify-between">
+              <p className="text-[10px] font-black text-[#62665c]">Path progress</p>
+              <p className="text-[11px] font-black text-[#171916]">4 of 8 topics</p>
+            </div>
+            <SegmentedProgress done={4} total={8} />
+          </div>
+
+          <p className="text-[11px] leading-[1.5] font-normal text-[#62665c]">
             Continue from your last topic.
           </p>
-          <Button as={Link} to={moduleUrl()} className="shrink-0">
-            Continue →
-          </Button>
-        </div>
-      </Card>
+        </Card>
 
-      {/* ── Compact learning path ── */}
-      {/* Mobile (2:6392) */}
-      <Card className="flex w-full flex-col gap-4 p-6 md:hidden">
-        <SubjectLabel icon={Brain} label="PSYCHOLOGY" />
-        <PathDetails
-          title="Cognitive Psychology"
-          source="Source · Memory and Learning.docx"
-          titleSize={17}
-        />
-        <TopicBlock topic="Working Memory" />
-        <ProgressBlock value={33.33} label="2 of 6 topics" />
-        <StackedAction activity="Last activity · 2 days ago" variant="secondary" />
-      </Card>
+        {/* ── Compact (hitam) ── */}
+        <div className="flex w-full flex-col gap-5 rounded-[4px] border-2 border-solid border-[#171916] bg-[#171916] p-[26px]">
+          <div className="flex w-full items-center justify-between">
+            <Brain size={22} strokeWidth={1.7} className="shrink-0 text-[#d5f35b]" aria-hidden="true" />
+            <p className="text-[10px] leading-[1.4] font-black text-[#bcc0b5]">2 days ago</p>
+          </div>
 
-      {/* Tablet + desktop (2:8004) */}
-      <Card className="hidden w-full flex-col gap-4 p-6 md:flex">
-        <div className="flex w-full items-center gap-4">
-          <Brain size={20} strokeWidth={1.75} className="shrink-0 text-[#17191f]" aria-hidden="true" />
-          <div className="flex min-w-px flex-1 flex-col gap-1 leading-[1.5]">
-            <p className="text-[17px] font-semibold text-[#17191f]">Cognitive Psychology</p>
-            <p className="text-[12px] leading-[1.5] font-normal text-[#686b73]">
+          <div className="flex w-full flex-col gap-2">
+            <p className="text-[28px] leading-[1.1] font-extrabold text-white lg:text-[32px]">
+              Cognitive Psychology
+            </p>
+            <p className="text-[12px] leading-[1.5] font-normal text-[#bcc0b5]">
               Source · Memory and Learning.docx
             </p>
           </div>
-          <Button variant="secondary" className="shrink-0">
+
+          <div className="flex w-full flex-col gap-[7px] py-[15px]">
+            <p className="text-[10px] leading-[1.4] font-black text-[#bcc0b5]">Current topic</p>
+            <p className="text-[20px] font-semibold text-white">Working Memory</p>
+          </div>
+
+          <div className="flex w-full flex-col gap-[9px]">
+            <div className="flex w-full items-start justify-between">
+              <p className="text-[10px] font-black text-[#bcc0b5]">Path progress</p>
+              <p className="text-[11px] font-black text-white">2 of 6 topics</p>
+            </div>
+            <SegmentedProgress done={2} total={6} tone="dark" />
+          </div>
+
+          <Button variant="secondary" className="self-start">
             Continue →
           </Button>
         </div>
-
-        <div className="flex w-full items-center justify-between">
-          <p className="min-w-px flex-1 text-[13px] leading-[1.5] font-normal text-[#17191f]">
-            Current topic · Working Memory
-          </p>
-          <p className="text-[11px] leading-[normal] font-normal whitespace-nowrap text-[#686b73]">
-            2 days ago
-          </p>
-        </div>
-
-        <ProgressBlock value={33.33} label="2 of 6 topics" />
-      </Card>
+      </div>
     </section>
   )
 }

@@ -3,37 +3,41 @@ import Card from '../ui/Card.jsx'
 import SectionHeading from '../ui/SectionHeading.jsx'
 import TextAction from '../ui/TextAction.jsx'
 
-/**
- * ProgressAchievements — design nodes 2:8124 (heading), 2:8127 (highlights card).
- */
 export default function ProgressAchievements() {
   return (
-    <section className="flex w-full flex-col gap-4">
-      <SectionHeading title="Small steps, real progress" />
+    <section className="flex w-full min-w-0 flex-col gap-[18px]">
+      <SectionHeading
+        title={
+          <>
+            Small steps,{' '}
+            <br className="hidden lg:block" />
+            real progress
+          </>
+        }
+        className="lg:h-[58px] lg:items-end"
+      />
 
-      <Card className="flex w-full flex-col gap-4 p-6">
-        <div className="flex w-full items-center gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-[#eef1ff]">
-            <Award size={20} strokeWidth={1.75} className="text-[#0033ff]" aria-hidden="true" />
-          </span>
-          <div className="flex min-w-px flex-1 flex-col gap-[3px] leading-[1.5]">
-            <p className="text-[13px] font-semibold text-[#17191f]">First path completed</p>
-            <p className="text-[11px] font-normal text-[#686b73]">Earned · 28 September</p>
+      <Card className="flex min-h-[344px] w-full flex-1 flex-col gap-5 p-6">
+        <div className="flex w-full items-center gap-2.5">
+          <Award size={24} strokeWidth={1.7} className="shrink-0 text-[#171916]" aria-hidden="true" />
+          <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
+            <p className="text-[13px] font-bold text-[#171916]">First path completed</p>
+            <p className="text-[11px] leading-[1.5] font-normal text-[#62665c]">
+              Earned · 28 September
+            </p>
           </div>
         </div>
 
-        <div className="h-px w-full shrink-0 bg-[#dad9d4]" />
+        <div className="h-px w-full shrink-0 bg-[#171916]" />
 
-        <div className="flex w-full items-center justify-between">
-          <p className="min-w-px flex-1 text-[12px] leading-[1.5] font-normal text-[#686b73]">
-            Reward Tokens
-          </p>
-          <p className="text-[16px] leading-[normal] font-semibold whitespace-nowrap text-[#17191f]">120</p>
+        <div className="flex w-full flex-col gap-1">
+          <p className="text-[10px] leading-[1.4] font-black text-[#62665c]">Reward Tokens</p>
+          <p className="text-[56px] leading-none font-black text-[#405c04] lg:text-[68px]">120</p>
         </div>
 
-        <div className="flex w-full items-start justify-between">
-          <TextAction>Achievements →</TextAction>
-          <TextAction>Leaderboard →</TextAction>
+        <div className="flex w-full flex-col gap-0.5">
+          <TextAction className="self-start">Achievements →</TextAction>
+          <TextAction className="self-start">Leaderboard →</TextAction>
         </div>
       </Card>
     </section>

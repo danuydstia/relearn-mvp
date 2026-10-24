@@ -1,27 +1,24 @@
 /**
  * Button — primary / secondary / ghost.
- * Design: Primary CTA — bg #03f, border #03f, radius 10, 13px semibold.
- *   Secondary CTA — white bg, #dad9d4 border, **blue** #03f label.
- *   Disabled CTA (design "Unavailable save action", 60:9259) — #e4e3df fill,
- *     #e4e3df border, #777a82 label. The `disabled:hover:` classes are stacked
- *     so a hovered disabled button can't fall back to its variant colour.
- *   size="md" → h 48, px 20  (invitation, card actions)
- *   size="sm" → h 38, px 15  (compact actions, e.g. "+ Input Your Material")
+ * Neo-brutalist: 2px #171916 border, radius 8.
+ *   primary   — lime fill, ink label
+ *   secondary — white fill, ink label
+ *   ghost     — transparent, dark-green label
+ *   size="md" → h 46, px 18, 12px bold  (CTA di kartu)
+ *   size="sm" → h 38, px 15, 13px black (aksi kompak)
  */
 const VARIANTS = {
-  primary:
-    'bg-[#0033ff] border-[#0033ff] text-white hover:bg-[#2652ff] hover:border-[#2652ff]',
-  secondary:
-    'bg-white border-[#dad9d4] text-[#0033ff] hover:bg-[#f5f5f2] hover:border-[#c8c7c2]',
-  ghost: 'bg-transparent border-transparent text-[#0033ff] hover:bg-[#eef1ff]',
+  primary: 'bg-[#d5f35b] border-[#171916] text-[#171916] hover:bg-[#c8e84a]',
+  secondary: 'bg-white border-[#171916] text-[#171916] hover:bg-[#f2f1ec]',
+  ghost: 'bg-transparent border-transparent text-[#405c04] hover:bg-[#f2f1ec]',
 }
 
 const DISABLED =
   'disabled:cursor-not-allowed disabled:border-[#e4e3df] disabled:bg-[#e4e3df] disabled:text-[#777a82] disabled:hover:border-[#e4e3df] disabled:hover:bg-[#e4e3df]'
 
 const SIZES = {
-  md: 'h-[48px] px-[20px]',
-  sm: 'h-[38px] px-[15px]',
+  md: 'h-[46px] px-[18px] text-[12px] font-bold',
+  sm: 'h-[38px] px-[15px] text-[13px] font-black',
 }
 
 export default function Button({
@@ -39,7 +36,7 @@ export default function Button({
     <Tag
       type={Tag === 'button' ? type : undefined}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-[10px] border border-solid text-[13px] font-semibold whitespace-nowrap transition-colors duration-150 ease-out ${
+      className={`inline-flex items-center justify-center gap-2 rounded-[8px] border-2 border-solid whitespace-nowrap transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#171916] ${
         SIZES[size] ?? SIZES.md
       } ${VARIANTS[variant] ?? VARIANTS.primary} ${DISABLED} ${className}`}
       {...props}
