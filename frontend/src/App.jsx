@@ -11,12 +11,13 @@ import ModuleLessonPage from './pages/ModuleLessonPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import EditProfilePage from './pages/EditProfilePage.jsx'
 import PlaceholderPage from './pages/PlaceholderPage.jsx'
+import LandingPage from './pages/LandingPage.jsx' // Import Landing Page
 
-// 1. Import your materials pages here
+// Import Materials pages
 import MaterialsPage from './pages/MaterialsPage.jsx'
 import SubjectDetailPage from './pages/SubjectDetailPage.jsx'
 
-// 2. Import Quiz pages here
+// Import Quiz pages
 import QuizIntroPage from './pages/QuizIntroPage.jsx'
 import QuizQuestionPage from './pages/QuizQuestionPage.jsx'
 import QuizResultsPage from './pages/QuizResultsPage.jsx'
@@ -36,21 +37,20 @@ import {
 import { useAuth } from './contexts/AuthContext'
 import { learningPathUrl } from './lib/learningPath'
 
-// ─── Inline handler untuk Google callback (tanpa halaman terpisah) ───
+// Inline handler untuk Google callback
 function GoogleCallbackHandler() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const auth = useAuth()
-
-  const status = searchParams.get('status')
-  const message = searchParams.get('message')
-  const token = searchParams.get('token')
-
-  const [asyncError, setAsyncError] = useState('')
-  const error = (status === 'error' ? (message || 'Google authentication failed') : '') || asyncError
+  const [error, setError] = useState('')
 
   useEffect(() => {
+    const token = searchParams.get('token')
+    const status = searchParams.get('status')
+    const message = searchParams.get('message')
+
     if (status === 'error') {
+      setError(message || 'Google authentication failed')
       const t = setTimeout(() => navigate('/login'), 2500)
       return () => clearTimeout(t)
     }
@@ -63,7 +63,7 @@ function GoogleCallbackHandler() {
     auth.fetchUser(token)
       .then((user) => navigate(landingPathFor(user)))
       .catch(() => {
-        setAsyncError('Gagal memproses login Google')
+        setError('Gagal memproses login Google')
         const t = setTimeout(() => navigate('/login'), 2500)
         return () => clearTimeout(t)
       })
@@ -87,8 +87,6 @@ function GoogleCallbackHandler() {
   )
 }
 
-// ─── Sidebar destinations that don't have a design yet ───
-// Removed '/materials' and '/quizzes' from placeholder routes since they are now implemented
 const PLACEHOLDER_ROUTES = [
   { path: '/communities', title: 'Communities', description: 'Study circles you belong to, their discussions and shared resources.' },
   { path: '/progress', title: 'Progress', description: 'Your learning performance over time.' },
@@ -178,9 +176,11 @@ function App() {
   return (
     <Routes>
       {/* ── Public / auth ── */}
-      <Route path="/" element={<AuthLayout variant="login">{loginForm}</AuthLayout>} />
+      {/* Set Rute "/" mengarah ke Landing Page */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<AuthLayout variant="login">{loginForm}</AuthLayout>} />
       <Route path="/register" element={<AuthLayout variant="register">{registerForm}</AuthLayout>} />
+      
       <Route
         path="/auth/google-callback"
         element={
@@ -256,7 +256,6 @@ function App() {
       />
 
       {/* ── Quizzes Routes ── */}
-      {/* Menggunakan :quizId agar dinamis, contoh: /quizzes/1/intro, /quizzes/1/question */}
       <Route
         path="/quizzes/:quizId"
         element={
@@ -298,7 +297,6 @@ function App() {
         }
       />
       
-      {/* Fallback untuk rute utama /quizzes saat dipencet dari Sidebar */}
       <Route
         path="/quizzes"
         element={
@@ -346,7 +344,7 @@ function App() {
         />
       ))}
 
-      {/* ── Admin console — desktop only, admin role only ── */}
+      {/* ── Admin console ── */}
       <Route
         path="/admin"
         element={
@@ -394,7 +392,8 @@ function App() {
         />
       ))}
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      {/* Jika halamannya ngawur, kembalikan ke Root / Landing page */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

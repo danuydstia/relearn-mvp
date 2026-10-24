@@ -39,11 +39,11 @@ export default function Sidebar() {
     <aside className="sticky top-0 flex h-screen w-full flex-col overflow-y-auto border-r-2 border-solid border-[#171916] bg-white">
       <div className="flex w-full flex-col gap-4 border-b-2 border-solid border-[#171916] px-[18px] pt-6 pb-5 lg:px-5">
         {/* Desktop: wordmark teks; tablet: tanda "R". */}
-        <div className="hidden items-center gap-3 lg:flex">
+        {/* <div className="hidden items-center gap-3 lg:flex">
           <span className="text-[38px] leading-none font-black text-[#171916]">Re:Learn</span>
           <span className="h-8 w-[2px] bg-[#171916]" aria-hidden="true" />
-        </div>
-        <img src="/relearn-logo.svg" alt="Re:Learn" className="block h-6 w-auto self-start lg:hidden" />
+        </div> */}
+        <img src="/relearn-full-logo-2.png" alt="Re:Learn" className="block h-10 w-auto self-start " />
 
         <p className="hidden text-[10px] leading-[15px] font-black text-[#62665c] lg:block">
           Your learning,
