@@ -10,6 +10,7 @@ import TransitionScribble from '../components/TransitionScribble.jsx';
 const ASSET_BASE = '/materials';
 const asset = (file) => encodeURI(`${ASSET_BASE}/${file}`);
 
+const imgLogo = asset('relearn-full-logo-black.png');
 const imgLearningWorkspace = asset('Learning workspace collage.png');
 const imgCommunityWorkspace = asset('Community workspace collage.png');
 const imgLearningRoute = asset('Learning route preview.png');
@@ -290,9 +291,8 @@ export default function LandingPage() {
 
       {/* --- NAVBAR --- */}
       <nav className="h-[72px] md:h-[100px] px-5 sm:px-8 lg:px-16 border-b border-[#181916] flex justify-between items-center relative z-10 bg-[#F8F6EF]">
-        <div className="flex items-center gap-2.5 cursor-pointer scribble-trigger">
-          <div className="w-7 h-[30px] md:w-8 md:h-[34px] bg-[#181916]" />
-          <div className="text-[22px] md:text-[25px] font-extrabold">Re:Learn</div>
+        <div className="flex items-center cursor-pointer scribble-trigger">
+          <img src={imgLogo} alt="Re:Learn" className="h-10 md:h-15 w-auto object-contain" />
         </div>
 
         <div className="hidden lg:flex items-center gap-7 text-[14px]">
