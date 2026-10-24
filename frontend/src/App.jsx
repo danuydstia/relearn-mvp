@@ -16,6 +16,12 @@ import PlaceholderPage from './pages/PlaceholderPage.jsx'
 import MaterialsPage from './pages/MaterialsPage.jsx'
 import SubjectDetailPage from './pages/SubjectDetailPage.jsx'
 
+// 2. Import Quiz pages here
+import QuizIntroPage from './pages/QuizIntroPage.jsx'
+import QuizQuestionPage from './pages/QuizQuestionPage.jsx'
+import QuizResultsPage from './pages/QuizResultsPage.jsx'
+import QuizReviewPage from './pages/QuizReviewPage.jsx'
+
 import AdminLayout from './components/layout/AdminLayout.jsx'
 import AdminRoute from './components/auth/AdminRoute.jsx'
 import AdminOverviewPage from './pages/admin/AdminOverviewPage.jsx'
@@ -35,15 +41,16 @@ function GoogleCallbackHandler() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const auth = useAuth()
-  const [error, setError] = useState('')
+
+  const status = searchParams.get('status')
+  const message = searchParams.get('message')
+  const token = searchParams.get('token')
+
+  const [asyncError, setAsyncError] = useState('')
+  const error = (status === 'error' ? (message || 'Google authentication failed') : '') || asyncError
 
   useEffect(() => {
-    const token = searchParams.get('token')
-    const status = searchParams.get('status')
-    const message = searchParams.get('message')
-
     if (status === 'error') {
-      setError(message || 'Google authentication failed')
       const t = setTimeout(() => navigate('/login'), 2500)
       return () => clearTimeout(t)
     }
@@ -56,7 +63,7 @@ function GoogleCallbackHandler() {
     auth.fetchUser(token)
       .then((user) => navigate(landingPathFor(user)))
       .catch(() => {
-        setError('Gagal memproses login Google')
+        setAsyncError('Gagal memproses login Google')
         const t = setTimeout(() => navigate('/login'), 2500)
         return () => clearTimeout(t)
       })
@@ -81,9 +88,8 @@ function GoogleCallbackHandler() {
 }
 
 // ─── Sidebar destinations that don't have a design yet ───
-// 2. Removed '/materials' from placeholder routes since it's now fully implemented
+// Removed '/materials' and '/quizzes' from placeholder routes since they are now implemented
 const PLACEHOLDER_ROUTES = [
-  { path: '/quizzes', title: 'Quizzes', description: 'Quizzes generated from your materials, and the results of past attempts.' },
   { path: '/communities', title: 'Communities', description: 'Study circles you belong to, their discussions and shared resources.' },
   { path: '/progress', title: 'Progress', description: 'Your learning performance over time.' },
   { path: '/achievements', title: 'Achievements', description: 'Badges and reward tokens you have earned.' },
@@ -227,7 +233,7 @@ function App() {
         }
       />
 
-      {/* 3. Added Materials Routes with AppShell */}
+      {/* Materials Routes */}
       <Route
         path="/materials"
         element={
@@ -244,6 +250,61 @@ function App() {
           <ProtectedRoute>
             <AppShell title="Materials">
               <SubjectDetailPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ── Quizzes Routes ── */}
+      {/* Menggunakan :quizId agar dinamis, contoh: /quizzes/1/intro, /quizzes/1/question */}
+      <Route
+        path="/quizzes/:quizId"
+        element={
+          <ProtectedRoute>
+            <AppShell title="Quizzes">
+              <QuizIntroPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quizzes/:quizId/question"
+        element={
+          <ProtectedRoute>
+            <AppShell title="Quizzes">
+              <QuizQuestionPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quizzes/:quizId/results"
+        element={
+          <ProtectedRoute>
+            <AppShell title="Quizzes">
+              <QuizResultsPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/quizzes/:quizId/review"
+        element={
+          <ProtectedRoute>
+            <AppShell title="Quizzes">
+              <QuizReviewPage />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+      
+      {/* Fallback untuk rute utama /quizzes saat dipencet dari Sidebar */}
+      <Route
+        path="/quizzes"
+        element={
+          <ProtectedRoute>
+            <AppShell title="Quizzes">
+              <QuizIntroPage />
             </AppShell>
           </ProtectedRoute>
         }

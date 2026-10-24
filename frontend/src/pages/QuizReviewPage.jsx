@@ -1,18 +1,20 @@
+import { useNavigate, useParams } from 'react-router-dom';
 import QuizShell from '../components/quiz/QuizShell';
 import QuizReview from '../components/quiz/QuizReview';
 import { SAMPLE } from '../components/quiz/sampleData';
 
-export default function QuizReviewPage({ status = "ready", data = SAMPLE, onAction = {} }) {
-  const handleRetry = onAction.onRetry || (() => console.log('retry'));
-  const handleStart = onAction.onStart || (() => console.log('start'));
-  
-  const stateAction = status === "empty" ? handleStart : handleRetry;
+export default function QuizReviewPage() {
+  const navigate = useNavigate();
+  const { quizId = '1' } = useParams();
 
   return (
-    <QuizShell view="review" status={status} onStateAction={stateAction}>
-      <QuizReview d={data} on={{
-        results: onAction.onBackToResults
-      }} />
+    <QuizShell view="review" status="ready">
+      <QuizReview 
+        d={SAMPLE} 
+        on={{
+          results: () => navigate(`/quizzes/${quizId}/results`)
+        }} 
+      />
     </QuizShell>
   );
 }
