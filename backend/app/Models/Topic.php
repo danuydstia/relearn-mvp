@@ -2,30 +2,22 @@
 
 namespace App\Models;
 
-use App\Models\Subtopic;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable([
-    'learning_path_id',
-    'title',
-    'sort_order',
-])]
 class Topic extends Model
 {
     use HasFactory;
 
-    public function learningPath(): BelongsTo
+    protected $fillable = ['module_id', 'order_index', 'title', 'content', 'estimated_minutes'];
+
+    public function module()
     {
-        return $this->belongsTo(LearningPath::class);
+        return $this->belongsTo(Module::class);
     }
 
-    public function subtopics(): HasMany
+    public function progress()
     {
-        // Otomatis mengurutkan subtopik berdasarkan sort_order
-        return $this->hasMany(Subtopic::class)->orderBy('sort_order', 'asc');
+        return $this->hasMany(UserProgress::class);
     }
 }

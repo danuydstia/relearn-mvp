@@ -2,55 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Relations\HasMany; 
 
-#[Fillable([
-    'user_id',
-    'title',
-    'file_path',
-    'file_type',
-    'status',
-])]
 class Material extends Model
 {
     use HasFactory;
 
-    const STATUS_PENDING = 'pending';
+    protected $fillable = [
+        'user_id', 
+        'title', 
+        'summary', 
+        'difficulty', 
+        'file_path', 
+        'file_type', 
+        'status'
+    ];
 
-    const STATUS_PROCESSING = 'processing';
-
-    const STATUS_COMPLETED = 'completed';
-
-    const STATUS_FAILED = 'failed';
-
-    protected $appends = ['file_url'];
-
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    protected function fileUrl(): Attribute
+    public function modules()
     {
-        return Attribute::get(function (): ?string {
-            if (! $this->file_path) {
-                return null;
-            }
-
-            // Gunakan disk supabase_materials
-            return Storage::disk('supabase_materials')->url($this->file_path);
-        });
+        return $this->hasMany(Module::class)->orderBy('order_index');
     }
-
-    public function learningPaths(): HasMany
-    {
-        return $this->hasMany(LearningPath::class);
-    }
-
 }

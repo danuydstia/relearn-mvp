@@ -525,8 +525,51 @@ Catat folder PHP-nya (contoh: `C:\php\php-8.4.26`).
 
 
 ##  Setup Supabase
-1. jalankan perintah composer require league/flysystem-aws-s3-v3 "^3.0" --with-all-dependencies
+1. jalankan perintah 
+   ```bash
+   composer require league/flysystem-aws-s3-v3 "^3.0" --with-all-dependencies
+   ```
 2. sesuaikan konfig di .env
+
+
+## 🐍 AI Service Setup (Python FastAPI)
+
+Folder `ai-service` adalah microservice berbasis Python yang bertugas menerima file, memprosesnya menggunakan Google Gemini AI, dan mengirimkan hasilnya kembali ke Laravel.
+
+### Prasyarat
+- Python 3.10 atau versi lebih baru.
+- API Key Google Gemini (dapatkan di [Google AI Studio](https://aistudio.google.com/)).
+- Pastikan server Laravel (Backend) sudah berjalan di `http://127.0.0.1:8000`.
+
+### Langkah-langkah Instalasi
+
+**1. Masuk ke folder ai-service**
+```bash
+cd ai-service
+```
+
+
+**2. Buat dan aktifkan Virtual Environment**
+```bash 
+   python -m venv venv
+   venv\Scripts\activate
+```
+
+
+**3. Install semua dependencies**
+```bash 
+   pip install -r requirements.txt
+```
+
+**4. Konfigurasi Environment Variables (.env)**
+isi GEMINI_API_KEY dengan API Key dari [google](https://aistudio.google.com/)
+dan isi LARAVEL_INTERNAL_KEY
+
+
+**5. Jalankan Server AI**
+```bash
+uvicorn ai_service:app --host 127.0.0.1 --port 8001 --reload
+```
 
 
 ## 8. Menjalankan Aplikasi

@@ -2,36 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable([
-    'user_id',
-    'subtopic_id',
-    'is_completed',
-    'completed_at',
-])]
 class UserProgress extends Model
 {
     use HasFactory;
 
-    /**
-     * Casting tipe data agar otomatis dikonversi oleh Eloquent.
-     */
-    protected $casts = [
-        'is_completed' => 'boolean',
-        'completed_at' => 'datetime',
-    ];
+    protected $table = 'user_progress';
+    protected $fillable = ['user_id', 'topic_id', 'is_completed', 'completed_at'];
 
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function subtopic(): BelongsTo
+    public function topic()
     {
-        return $this->belongsTo(Subtopic::class);
+        return $this->belongsTo(Topic::class);
     }
 }

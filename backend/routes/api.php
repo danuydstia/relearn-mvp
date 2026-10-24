@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DevPlanController;
 use App\Http\Controllers\Api\GoogleController;
 use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\LearningPathController; // <-- Tambahan Import
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,10 +31,18 @@ Route::prefix('v1')->group(function () {
         Route::patch('/profile', [ProfileController::class, 'update']);
         Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar']);
 
+        // Materials
         Route::get('/materials', [MaterialController::class, 'index']);
         Route::post('/materials', [MaterialController::class, 'store']);
         Route::get('/materials/{material}', [MaterialController::class, 'show']);
         Route::delete('/materials/{material}', [MaterialController::class, 'destroy']);
+
+        // ===== LMS (Learning Path) =====
+        // 1. Mengambil data materi (Modul & Topik + Progress)
+        Route::get('/materials/{material}/learning-path', [LearningPathController::class, 'show']);
+        
+        // 2. Menandai topik telah selesai dibaca
+        Route::post('/materials/{material}/topics/{topic}/complete', [LearningPathController::class, 'completeTopic']);
 
 
         // Admin — desktop console, admin role only.
@@ -42,6 +51,11 @@ Route::prefix('v1')->group(function () {
             Route::get('/users', [AdminUserController::class, 'index']);
         });
     });
+
+    // ===== INTERNAL API (Untuk dipanggil oleh Python/FastAPI) =====
+    // Route ini di luar auth:sanctum karena dipanggil oleh server, bukan user langsung.
+    // Sebaiknya tambahkan middleware khusus (misal: API Key) agar aman di production.
+    Route::post('/materials/{material}/learning-path', [LearningPathController::class, 'store']);
 
     // ===== Khusus development: ganti plan tanpa pembayaran =====
     // Tidak pernah terdaftar di production, jadi tidak bisa disalahgunakan.
