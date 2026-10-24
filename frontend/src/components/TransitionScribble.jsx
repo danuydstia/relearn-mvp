@@ -189,7 +189,7 @@ export default function TransitionScribble() {
           className="text-[40px] font-black px-6 py-2.5 rounded-full shadow-2xl"
           style={{ backgroundColor: '#181916', color: '#F8F6EF' }}
         >
-          ReLearn ✱
+          Re:Learn
         </span>
       </div>
 
