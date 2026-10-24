@@ -2,21 +2,26 @@ import { useLayoutEffect, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import TransitionScribble from '../components/TransitionScribble.jsx';
 
-// 1. Import semua gambar dari folder assets/materials
-import imgLearningWorkspace from '../assets/materials/Learning workspace collage.png';
-import imgCommunityWorkspace from '../assets/materials/Community workspace collage.png';
-import imgLearningRoute from '../assets/materials/Learning route preview.png';
-import imgAIConversation from '../assets/materials/AI conversation collage.png';
-import imgStep1 from '../assets/materials/Learning step card (1).png';
-import imgStep2 from '../assets/materials/Learning step card (2).png';
-import imgStep3 from '../assets/materials/Learning step card (3).png';
-import imgStep4 from '../assets/materials/Learning step card.png';
-import imgKeepLearning from '../assets/materials/Keep learning sticker.png';
-import imgAchievementWorkspace from '../assets/materials/Achievement workspace.png';
+// Semua gambar sekarang ada di public/materials/ (dipanggil lewat path absolut).
+// Kalau foldernya beda, cukup ubah ASSET_BASE. Contoh: '' jika file langsung di public/.
+const ASSET_BASE = '/materials';
+const asset = (file) => encodeURI(`${ASSET_BASE}/${file}`);
 
-gsap.registerPlugin(ScrollTrigger);
+const imgLearningWorkspace = asset('Learning workspace collage.png');
+const imgCommunityWorkspace = asset('Community workspace collage.png');
+const imgLearningRoute = asset('Learning route preview.png');
+const imgAIConversation = asset('AI conversation collage.png');
+const imgStep1 = asset('Learning step card (1).png');
+const imgStep2 = asset('Learning step card (2).png');
+const imgStep3 = asset('Learning step card (3).png');
+const imgStep4 = asset('Learning step card.png');
+const imgKeepLearning = asset('Keep learning sticker.png');
+const imgAchievementWorkspace = asset('Achievement workspace.png');
+
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 // Jeda sebelum animasi hero mulai, supaya pas dengan intro coretan
 // (intro menutup layar 0.8 dtk lalu menyapu keluar). Set 0 kalau intro dimatikan.
@@ -27,6 +32,7 @@ const NAV_LINKS = [
   { href: '#path', label: 'Learning Path' },
   { href: '#ai', label: 'AI Chat Bot' },
   { href: '#how', label: 'How it works' },
+  { href: '#pricing', label: 'Pricing' },
 ];
 
 const MARQUEE_ITEMS = ['Curiosity', 'Small Steps', 'Big Conversations', 'Learn Your Way'];
@@ -39,6 +45,40 @@ const WHY_ITEMS = [
 
 const STEP_IMAGES = [imgStep1, imgStep2, imgStep3, imgStep4];
 
+// Harga & fitur di bawah ini masih contoh. Sesuaikan dengan paket asli Re:Learn.
+const PLANS = [
+  {
+    name: 'Free',
+    price: '$0',
+    period: 'forever',
+    desc: 'Everything you need to start learning from your own materials.',
+    features: [
+      'Up to 3 learning paths',
+      'Upload your own materials',
+      'AI Chat Bot with daily limit',
+      'Join community discussions',
+      'Personal progress and tokens',
+    ],
+    cta: 'Start for free',
+    featured: false,
+  },
+  {
+    name: 'Pro',
+    price: '$5',
+    period: 'per month',
+    desc: 'More room to learn, ask, and build without limits.',
+    features: [
+      'Unlimited learning paths',
+      'Larger material uploads',
+      'Unlimited AI Chat Bot questions',
+      'Share paths with the community',
+      'All achievements and bonus tokens',
+    ],
+    cta: 'Go Pro',
+    featured: true,
+  },
+];
+
 /* ---------- Komponen kecil yang dipakai berulang ---------- */
 
 function CtaLink({ to, children, tone = 'dark', size = 'lg', className = '' }) {
@@ -50,14 +90,28 @@ function CtaLink({ to, children, tone = 'dark', size = 'lg', className = '' }) {
     md: 'h-[44px] md:h-[46px] px-5 md:px-6 text-[13px] md:text-[14px]',
     lg: 'h-[54px] md:h-[60px] px-6 md:px-8 text-[15px] md:text-[16px]',
   };
-  const box = tone === 'lime' ? 'border-[#181916]' : 'border-[#D5F35B]';
+  // Warna panah mengikuti tone tombol (lime di tombol gelap, gelap di tombol lime)
+  const arrowColor = tone === 'lime' ? 'bg-[#181916]' : 'bg-[#D5F35B]';
   return (
     <Link
       to={to}
       className={`scribble-trigger group w-fit max-w-full rounded-full font-semibold flex items-center gap-4 md:gap-6 transition-colors ${tones[tone]} ${sizes[size]} ${className}`}
     >
       {children}
-      <div className={`w-5 h-5 shrink-0 border-2 ${box} transition-transform duration-300 group-hover:rotate-90`} />
+      <span
+        aria-hidden="true"
+        className={`w-6 h-6 shrink-0 ${arrowColor}`}
+        style={{
+          WebkitMaskImage: 'url(/Arrow.svg)',
+          maskImage: 'url(/Arrow.svg)',
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          maskPosition: 'center',
+          WebkitMaskSize: 'contain',
+          maskSize: 'contain',
+        }}
+      />
     </Link>
   );
 }
@@ -74,6 +128,13 @@ function FeatureHeader({ num, label, tagline }) {
   );
 }
 
+// Garis bawah yang menyapu saat hover, mengecil sedikit saat ditekan
+const NAV_LINK_CLASS =
+  'relative inline-block transition-transform duration-150 active:scale-95 ' +
+  "after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full " +
+  'after:bg-[#181916] after:origin-left after:scale-x-0 hover:after:scale-x-100 ' +
+  'after:transition-transform after:duration-300';
+
 const SECTION = 'py-14 md:py-20 lg:py-24 px-5 sm:px-8 lg:px-16';
 
 /* ---------- Halaman ---------- */
@@ -82,6 +143,28 @@ export default function LandingPage() {
   const rootRef = useRef(null);
   const menuRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Klik link navbar: efek "pop" pada link + scroll halus ke section tujuan
+  const handleNavClick = (e, href) => {
+    const target = document.querySelector(href);
+    if (!target) return;
+    e.preventDefault();
+    setMenuOpen(false);
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) {
+      gsap.fromTo(
+        e.currentTarget,
+        { scale: 0.88 },
+        { scale: 1, duration: 0.5, ease: 'back.out(3)', overwrite: 'auto' }
+      );
+    }
+    gsap.to(window, {
+      scrollTo: { y: target, offsetY: 0 },
+      duration: reduce ? 0 : 1.1,
+      ease: 'power3.inOut',
+    });
+  };
 
   // Animasi menu mobile
   useEffect(() => {
@@ -209,13 +292,14 @@ export default function LandingPage() {
       <nav className="h-[72px] md:h-[100px] px-5 sm:px-8 lg:px-16 border-b border-[#181916] flex justify-between items-center relative z-10 bg-[#F8F6EF]">
         <div className="flex items-center gap-2.5 cursor-pointer scribble-trigger">
           <div className="w-7 h-[30px] md:w-8 md:h-[34px] bg-[#181916]" />
-          <div className="text-[22px] md:text-[25px] font-extrabold">ReLearn</div>
-          <div className="text-[15px]">✱</div>
+          <div className="text-[22px] md:text-[25px] font-extrabold">Re:Learn</div>
         </div>
 
         <div className="hidden lg:flex items-center gap-7 text-[14px]">
           {NAV_LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="hover:underline">{l.label}</a>
+            <a key={l.href} href={l.href} onClick={(e) => handleNavClick(e, l.href)} className={NAV_LINK_CLASS}>
+              {l.label}
+            </a>
           ))}
         </div>
 
@@ -242,7 +326,12 @@ export default function LandingPage() {
             className="lg:hidden absolute top-full left-0 right-0 bg-[#F8F6EF] border-b border-[#181916] px-5 sm:px-8 py-6 flex flex-col gap-5 text-[18px] font-semibold shadow-xl"
           >
             {NAV_LINKS.map((l) => (
-              <a key={l.href} href={l.href} onClick={() => setMenuOpen(false)} className="hover:underline">
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={(e) => handleNavClick(e, l.href)}
+                className={`${NAV_LINK_CLASS} w-fit`}
+              >
                 {l.label}
               </a>
             ))}
@@ -302,11 +391,11 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* --- WHY RELEARN --- */}
+      {/* --- WHY Re:Learn --- */}
       <section className={`${SECTION} flex flex-col gap-8 md:gap-10`}>
         <div className="flex flex-col lg:flex-row lg:items-start gap-8 lg:gap-20">
           <div data-reveal className="lg:w-[220px] lg:shrink-0 flex flex-col gap-5 lg:gap-7">
-            <span className="text-[13px] font-semibold uppercase">Why ReLearn?</span>
+            <span className="text-[13px] font-semibold uppercase">Why Re:Learn?</span>
             <h2 className="text-[20px] md:text-[22px] font-medium leading-snug -rotate-3 origin-left">Lots of tabs open.<br />But not much sticks.</h2>
           </div>
           <h2 data-reveal className="flex-1 text-[clamp(1.75rem,4vw,3.6rem)] font-extrabold leading-tight">
@@ -433,6 +522,64 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* --- PRICING --- */}
+      <section id="pricing" className={`${SECTION} flex flex-col gap-8 md:gap-12 border-t border-[#DCDDD2]`}>
+        <div data-reveal className="flex flex-col lg:flex-row lg:items-end gap-6 lg:gap-20">
+          <div className="flex flex-col gap-5 md:gap-7">
+            <span className="text-[13px] font-semibold uppercase">Pricing</span>
+            <h2 className="text-[clamp(2.5rem,6vw,5.4rem)] font-black leading-none">Start free.<br />Go further later.</h2>
+          </div>
+          <p className="lg:flex-1 max-w-[520px] text-[16px] md:text-[18px] leading-relaxed lg:pb-4">
+            Begin with one material and no card. Upgrade only when you want more paths and more questions.
+          </p>
+        </div>
+
+        <div data-stagger className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-[1000px]">
+          {PLANS.map((plan) => (
+            <div
+              key={plan.name}
+              data-item
+              className={`flex flex-col gap-6 p-6 md:p-10 rounded-3xl border border-[#181916] ${
+                plan.featured ? 'bg-[#181916] text-[#F8F6EF]' : 'bg-white'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[22px] font-extrabold">{plan.name}</span>
+                {plan.featured && (
+                  <span className="px-3 py-1 rounded-full bg-[#D5F35B] text-[#181916] text-[11px] font-semibold">
+                    Most popular
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-end gap-2">
+                <span className="text-[clamp(3rem,5vw,4.5rem)] font-black leading-none">{plan.price}</span>
+                <span className="pb-1 text-[14px] opacity-70">{plan.period}</span>
+              </div>
+
+              <p className="text-[15px] leading-relaxed opacity-80">{plan.desc}</p>
+
+              <hr className={plan.featured ? 'border-[#3A3D33]' : 'border-[#DCDDD2]'} />
+
+              <ul className="flex flex-col gap-3.5 text-[15px]">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3">
+                    <span className={`font-bold ${plan.featured ? 'text-[#D5F35B]' : 'text-[#27644B]'}`}>✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <CtaLink to="/register" tone={plan.featured ? 'lime' : 'dark'} className="mt-auto">
+                {plan.cta}
+              </CtaLink>
+            </div>
+          ))}
+        </div>
+
+        <p data-reveal className="text-[12px] text-[#62645A]">Cancel anytime. Your materials and progress stay yours.</p>
+      </section>
+
       {/* --- FOOTER --- */}
       <footer className="pt-14 md:pt-24 pb-8 px-5 sm:px-8 lg:px-16 bg-[#181916] flex flex-col gap-10 md:gap-14 text-[#F8F6EF]">
         <div className="flex flex-col gap-8">
@@ -458,7 +605,7 @@ export default function LandingPage() {
 
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-10">
           <div className="max-w-[380px] flex flex-col gap-4">
-            <span className="text-[#D5F35B] text-[24px] font-extrabold">ReLearn ✱</span>
+            <span className="text-[#D5F35B] text-[24px] font-extrabold">Re:Learn</span>
             <p className="text-[14px] opacity-80 leading-relaxed">
               A space for curiosity to have direction. Learn independently, grow together.
             </p>
@@ -469,6 +616,7 @@ export default function LandingPage() {
               <a href="#community" className="text-[13px] hover:text-[#D5F35B] transition-colors">Community</a>
               <a href="#path" className="text-[13px] hover:text-[#D5F35B] transition-colors">Learning Path</a>
               <a href="#ai" className="text-[13px] hover:text-[#D5F35B] transition-colors">AI Chat Bot</a>
+              <a href="#pricing" className="text-[13px] hover:text-[#D5F35B] transition-colors">Pricing</a>
             </div>
             <div className="flex flex-col gap-4">
               <span className="text-[#D5F35B] text-[10px] font-bold tracking-widest">GET STARTED</span>
@@ -478,7 +626,7 @@ export default function LandingPage() {
             </div>
             <div className="flex flex-col gap-4">
               <span className="text-[#D5F35B] text-[10px] font-bold tracking-widest">ABOUT</span>
-              <a href="#" className="text-[13px] hover:text-[#D5F35B] transition-colors">About ReLearn</a>
+              <a href="#" className="text-[13px] hover:text-[#D5F35B] transition-colors">About Re:Learn</a>
               <a href="#" className="text-[13px] hover:text-[#D5F35B] transition-colors">Privacy policy</a>
               <a href="#" className="text-[13px] hover:text-[#D5F35B] transition-colors">Terms of use</a>
             </div>
@@ -486,11 +634,11 @@ export default function LandingPage() {
         </div>
 
         <div data-wordmark-wrap className="overflow-hidden mt-4 md:mt-10">
-          <h1 data-wordmark className="text-[#D5F35B] text-[clamp(3.5rem,17vw,10rem)] font-black leading-[1.05]">ReLearn</h1>
+          <h1 data-wordmark className="text-[#D5F35B] text-[clamp(3.5rem,17vw,10rem)] font-black leading-[1.05]">Re:Learn</h1>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mt-2 md:mt-6 text-[11px] opacity-60 text-center sm:text-left">
-          <span>© 2026 ReLearn. Stay curious, keep learning.</span>
+          <span>© 2026 Re:Learn. Stay curious, keep learning.</span>
           <button onClick={() => window.scrollTo(0, 0)} className="text-[#D5F35B] hover:underline">Back to top ↑</button>
           <span>English / EN</span>
         </div>
