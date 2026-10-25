@@ -594,16 +594,11 @@ npm run dev
 
 Server development Vite akan tersedia di `http://localhost:5173`.
 
-**Terminal 3 — Queue worker (opsional untuk saat ini)**
-
-Jalankan ini ketika fitur seperti ekstraksi dokumen atau generate AI sudah berjalan sebagai background job:
-
+**Terminal 3 — AI**
 ```bash
-cd backend
-php artisan queue:work
+uvicorn ai_service:app --host 127.0.0.1 --port 8001 --reload
 ```
 
-Restart worker setiap kali kode job berubah.
 
 ### Buka link yang mana?
 

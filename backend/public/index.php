@@ -1,5 +1,9 @@
 <?php
 
+// Tambahkan dua baris ini:
+ini_set('max_execution_time', 300); // 300 detik (5 menit)
+set_time_limit(300);
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 

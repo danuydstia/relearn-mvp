@@ -11,7 +11,7 @@ import ModuleLessonPage from './pages/ModuleLessonPage.jsx'
 import ProfilePage from './pages/ProfilePage.jsx'
 import EditProfilePage from './pages/EditProfilePage.jsx'
 import PlaceholderPage from './pages/PlaceholderPage.jsx'
-import LandingPage from './pages/LandingPage.jsx' // Import Landing Page
+import LandingPage from './pages/LandingPage.jsx' 
 
 // Import Materials pages
 import MaterialsPage from './pages/MaterialsPage.jsx'
@@ -35,7 +35,6 @@ import {
   landingPathFor,
 } from './lib/adminNavigation'
 import { useAuth } from './contexts/AuthContext'
-import { learningPathUrl } from './lib/learningPath'
 
 // Inline handler untuk Google callback
 function GoogleCallbackHandler() {
@@ -176,7 +175,6 @@ function App() {
   return (
     <Routes>
       {/* ── Public / auth ── */}
-      {/* Set Rute "/" mengarah ke Landing Page */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<AuthLayout variant="login">{loginForm}</AuthLayout>} />
       <Route path="/register" element={<AuthLayout variant="register">{registerForm}</AuthLayout>} />
@@ -202,17 +200,23 @@ function App() {
         }
       />
 
+      {/* ======================================================== */}
+      {/* RUTE BARU UNTUK LMS (Dinamis berdasarkan Database ID) */}
+      {/* ======================================================== */}
+      
+      {/* Redirect dari /learning ke halaman materials */}
       <Route
         path="/learning"
         element={
           <ProtectedRoute>
-            <Navigate to={learningPathUrl()} replace />
+            <Navigate to="/materials" replace />
           </ProtectedRoute>
         }
       />
 
+      {/* 1. Halaman Daftar Modul (Path) */}
       <Route
-        path="/learning/:pathSlug"
+        path="/materials/:materialId/learning-path"
         element={
           <ProtectedRoute>
             <AppShell title="My Learning">
@@ -222,8 +226,9 @@ function App() {
         }
       />
 
+      {/* 2. Halaman Baca Materi (Lesson) */}
       <Route
-        path="/learning/:pathSlug/modules/:moduleSlug"
+        path="/materials/:materialId/topics/:topicId"
         element={
           <ProtectedRoute>
             <AppShell title="My Learning">
@@ -233,6 +238,8 @@ function App() {
         }
       />
 
+      {/* ======================================================== */}
+      
       {/* Materials Routes */}
       <Route
         path="/materials"
