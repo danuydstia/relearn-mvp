@@ -1,30 +1,20 @@
 import { Link } from 'react-router-dom'
-import { BookOpen, CircleCheck, LockKeyhole } from 'lucide-react'
-import { moduleUrl } from '../../lib/learningPath'
+import { BookOpen, CircleCheck } from 'lucide-react'
 
-/**
- * ModuleRow — baris modul berurutan di A03.
- *
- * Baris selesai dan terkunci tampil sama (outline 2px ink, radius 8, p-16);
- * baris in-progress menambah aksi "Open module →". Gap internal 8px dan
- * padding 16px menghasilkan tinggi baris seperti di Figma.
- */
 const ICONS = {
   completed: CircleCheck,
   in_progress: BookOpen,
-  locked: LockKeyhole,
 }
 
 export default function ModuleRow({ module, pathSlug }) {
   const Icon = ICONS[module.status] ?? BookOpen
-  const isLocked = module.status === 'locked'
-  const isInProgress = module.status === 'in_progress'
 
-  const meta = isLocked
-    ? `Locked · ${module.lockedReason ?? 'Complete the previous module first'}`
-    : `${module.status === 'completed' ? 'Completed' : 'In progress'} · ${
-        module.completedTopics
-      } of ${module.totalTopics} topics`
+  const meta = `${module.status === 'completed' ? 'Completed' : 'In progress'} · ${
+    module.completedTopics
+  } of ${module.totalTopics} topics`
+
+  // Cari topik pertama yang belum selesai
+  const firstUncompletedTopic = module.topics.find(t => !t.is_completed) || module.topics[0]
 
   return (
     <div
@@ -42,9 +32,9 @@ export default function ModuleRow({ module, pathSlug }) {
 
       <p className="text-[12px] leading-[1.5] font-medium text-[#62665c]">{module.summary}</p>
 
-      {isInProgress && (
+      {firstUncompletedTopic && (
         <Link
-          to={moduleUrl(module.slug, pathSlug)}
+          to={`/materials/${pathSlug}/topics/${firstUncompletedTopic.id}`}
           className="self-start text-[13px] leading-[1.5] font-black text-[#405c04] hover:underline"
         >
           Open module →

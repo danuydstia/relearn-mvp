@@ -48,12 +48,13 @@ class MaterialController extends Controller
         // TRIGGER PYTHON AI SERVICE
         // ==========================================
         try {
-            // Tembak API Python di port 8001
-            $response = Http::timeout(300)->post('http://127.0.0.1:8001/process-material', [
+            // Turunkan timeout karena Python sekarang langsung merespons
+            $response = Http::timeout(10)->post('http://127.0.0.1:8001/process-material', [
                 'material_id' => $material->id,
                 'file_url' => $publicUrl,
                 'mime_type' => $file->getMimeType(),
             ]);
+
 
             if ($response->failed()) {
                 // Jika Python error, ubah status jadi failed
@@ -67,9 +68,37 @@ class MaterialController extends Controller
             Log::error("AI Service Connection Error: " . $e->getMessage());
         }
 
+        $material->refresh(); 
+
         return response()->json([
             'message' => 'Material uploaded and processing started.',
             'data' => $material,
         ], 201);
     }
+
+    public function show(Request $request, Material $material): JsonResponse
+    {
+        if ($material->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        return response()->json($material);
+    }
+
+    public function destroy(Request $request, Material $material): JsonResponse
+    {
+        if ($material->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $disk = Storage::disk('supabase_materials');
+        if ($disk->exists($material->file_path)) {
+            $disk->delete($material->file_path);
+        }
+
+        $material->delete();
+
+        return response()->json(['message' => 'Material deleted successfully']);
+    }
+
 }

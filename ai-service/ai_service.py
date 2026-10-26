@@ -2,104 +2,131 @@ import os
 import re
 import json
 import requests
-from typing import Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from google import genai
 from dotenv import load_dotenv
 
 # ---------- CONFIG ----------
 load_dotenv()
-
 API_KEY = os.getenv("GEMINI_API_KEY")
-if not API_KEY:
-    raise RuntimeError("GEMINI_API_KEY belum di-set di file .env")
-
-# Gunakan model yang benar
-MODEL_ID = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+MODEL_ID = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 LARAVEL_API_URL = os.getenv("LARAVEL_API_URL", "http://127.0.0.1:8000/api/v1")
 LARAVEL_INTERNAL_KEY = os.getenv("LARAVEL_INTERNAL_KEY", "rahasia-antar-server")
 
 client = genai.Client(api_key=API_KEY)
 app = FastAPI(title="AI Microservice")
 
-# Model untuk menerima data dari Laravel
 class ProcessRequest(BaseModel):
     material_id: int
     file_url: str
     mime_type: str
 
-# ---------- PROMPT ----------
-PROMPT = """Anda adalah seorang instruktur ahli dan desainer kurikulum.
-Tugas: dari dokumen materi yang dilampirkan, buatkan LEARNING PATH yang terstruktur.
-PENTING: Anda harus menuliskan MATERI LENGKAP untuk setiap sub-topik, bukan hanya daftar judul.
-Materi harus ditulis dalam format Markdown (gunakan **bold**, *italic*, `code`, dan list jika perlu).
+# ---------- PROMPT LEBIH RINGKAS ----------
+PROMPT_COMBINED = """Anda adalah instruktur ahli. Dari dokumen yang dilampirkan, buatkan Learning Path singkat beserta kuis.
 
 ATURAN KETAT:
-1. Gunakan HANYA informasi dari dokumen yang dilampirkan. Jangan mengarang fakta di luar dokumen.
-2. Bagi materi menjadi 3-5 Modul logis. Setiap Modul berisi 2-4 Topik.
-3. Setiap Topik HARUS memiliki konten penjelasan (minimal 2 paragraf) di field `content`.
-4. Estimasi waktu belajar per topik dalam menit.
-5. Seluruh teks dalam Bahasa Indonesia.
+1. Gunakan HANYA informasi dari dokumen.
+2. Buat maksimal 2 Modul. Setiap Modul berisi 2 Topik (total 4 Topik).
+3. Setiap Topik: tulis 1 paragraf ringkas (maksimal 100 kata) dalam format Markdown.
+4. Buat 3 soal pilihan ganda (A, B, C, D) beserta penjelasan singkat.
+5. Seluruh teks Bahasa Indonesia.
 
-Kembalikan HANYA JSON valid (tanpa markdown pembungkus, tanpa penjelasan) dengan skema:
+Kembalikan HANYA JSON valid:
 {
-  "title": "string (Judul Course)",
-  "summary": "string (Ringkasan course)",
-  "difficulty": "beginner" | "intermediate" | "advanced",
-  "modules": [
-    {
-      "order": number,
-      "title": "string (Judul Modul)",
-      "topics": [
-        {
-          "order": number,
-          "title": "string (Judul Topik)",
-          "content": "string (Materi lengkap dalam format Markdown)",
-          "estimated_minutes": number
-        }
-      ]
-    }
-  ]
+  "learning_path": {
+    "title": "string",
+    "summary": "string",
+    "difficulty": "beginner",
+    "modules": [
+      {
+        "order": number,
+        "title": "string",
+        "topics": [
+          {
+            "order": number,
+            "title": "string",
+            "content": "string",
+            "estimated_minutes": number
+          }
+        ]
+      }
+    ]
+  },
+  "quiz": {
+    "title": "string",
+    "questions": [
+      {
+        "question_text": "string",
+        "options": ["string", "string", "string", "string"],
+        "correct_option": "A",
+        "explanation": "string"
+      }
+    ]
+  }
 }
 """
 
-# Skema JSON untuk response_format (mengikuti format Interactions API)
-JSON_SCHEMA = {
+JSON_SCHEMA_COMBINED = {
     "type": "object",
     "properties": {
-        "title": {"type": "string"},
-        "summary": {"type": "string"},
-        "difficulty": {"type": "string", "enum": ["beginner", "intermediate", "advanced"]},
-        "modules": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "order": {"type": "number"},
-                    "title": {"type": "string"},
-                    "topics": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "order": {"type": "number"},
-                                "title": {"type": "string"},
-                                "content": {"type": "string"},
-                                "estimated_minutes": {"type": "number"}
-                            },
-                            "required": ["order", "title", "content", "estimated_minutes"]
-                        }
+        "learning_path": {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string"},
+                "summary": {"type": "string"},
+                "difficulty": {"type": "string"},
+                "modules": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "order": {"type": "number"},
+                            "title": {"type": "string"},
+                            "topics": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "order": {"type": "number"},
+                                        "title": {"type": "string"},
+                                        "content": {"type": "string"},
+                                        "estimated_minutes": {"type": "number"}
+                                    },
+                                    "required": ["order", "title", "content", "estimated_minutes"]
+                                }
+                            }
+                        },
+                        "required": ["order", "title", "topics"]
                     }
-                },
-                "required": ["order", "title", "topics"]
-            }
+                }
+            },
+            "required": ["title", "summary", "difficulty", "modules"]
+        },
+        "quiz": {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string"},
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "question_text": {"type": "string"},
+                            "options": {"type": "array", "items": {"type": "string"}},
+                            "correct_option": {"type": "string"},
+                            "explanation": {"type": "string"}
+                        },
+                        "required": ["question_text", "options", "correct_option", "explanation"]
+                    }
+                }
+            },
+            "required": ["title", "questions"]
         }
     },
-    "required": ["title", "summary", "difficulty", "modules"]
+    "required": ["learning_path", "quiz"]
 }
 
-# ---------- HELPERS ----------
 def strip_json_fence(text: str) -> str:
     text = text.strip()
     if text.startswith("```"):
@@ -107,93 +134,73 @@ def strip_json_fence(text: str) -> str:
         text = re.sub(r"\s*```$", "", text)
     return text.strip()
 
-# ---------- ENDPOINT ----------
-@app.post("/process-material")
-async def process_material(req: ProcessRequest):
+# ==========================================
+# FUNGSI BACKGROUND TASK
+# ==========================================
+def process_ai_pipeline(req: ProcessRequest):
     temp_path = f"temp_{req.material_id}.file"
     
     try:
-        # 1. Download file dari Supabase URL
-        print(f"[INFO] Mendownload file dari: {req.file_url}")
+        print(f"[BG-TASK] Mendownload file...")
         file_response = requests.get(req.file_url, timeout=30)
         file_response.raise_for_status()
-        
         with open(temp_path, "wb") as f:
             f.write(file_response.content)
 
-        # 2. Upload file ke Gemini Files API
-        print(f"[INFO] Mengunggah ke Gemini Files API...")
-        uploaded_file = client.files.upload(
-            file=temp_path,
-            config={'mime_type': req.mime_type}
-        )
+        uploaded_file = client.files.upload(file=temp_path, config={'mime_type': req.mime_type})
         file_uri = uploaded_file.uri
-        print(f"[INFO] File berhasil diunggah ke Gemini: {file_uri}")
-
     except Exception as e:
-        print(f"[ERROR UPLOAD/DOWNLOAD] {type(e).__name__}: {e}")
-        raise HTTPException(status_code=500, detail=f"Gagal memproses file: {e}")
+        print(f"[BG-TASK ERROR] Upload/Download: {e}")
+        return
     finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+        if os.path.exists(temp_path): os.remove(temp_path)
 
-    # 3. Panggil Gemini via Interactions API
     try:
-        print(f"[INFO] Memanggil Gemini ({MODEL_ID}) via Interactions API...")
+        print(f"[BG-TASK] Memanggil Gemini ({MODEL_ID})...")
         interaction = client.interactions.create(
             model=MODEL_ID,
             input=[
-                {"type": "text", "text": PROMPT},
+                {"type": "text", "text": PROMPT_COMBINED},
                 {"type": "document", "uri": file_uri, "mime_type": req.mime_type},
             ],
-            response_format={
-                "type": "text",
-                "mime_type": "application/json",
-                "schema": JSON_SCHEMA,
-            },
-            generation_config={
-                "thinking_level": "low",  # Mengurangi waktu tunggu
-            },
+            response_format={"type": "text", "mime_type": "application/json", "schema": JSON_SCHEMA_COMBINED},
+            generation_config={"thinking_level": "low"},
         )
-    except Exception as e:
-        print(f"[ERROR GENERATE] {type(e).__name__}: {e}")
-        raise HTTPException(status_code=500, detail=f"Gemini error: {e}")
-
-    # 4. Ambil output dari interaction
-    raw = (interaction.output_text or "").strip()
-    if not raw:
-        raise HTTPException(status_code=500, detail="Gemini mengembalikan respons kosong.")
-
-    # 5. Parsing JSON
-    try:
-        learning_path = json.loads(strip_json_fence(raw))
-    except json.JSONDecodeError as e:
-        print(f"[ERROR JSON] Raw response: {raw[:500]}...")
-        raise HTTPException(status_code=500, detail=f"JSON tidak valid dari model: {e}")
-
-    # 6. Kirim hasil ke API Laravel
-    try:
-        print(f"[INFO] Mengirim hasil ke Laravel API...")
-        laravel_url = f"{LARAVEL_API_URL}/materials/{req.material_id}/learning-path"
         
+        raw = (interaction.output_text or "").strip()
+        result = json.loads(strip_json_fence(raw))
+        
+        learning_path = result.get("learning_path")
+        quiz_data = result.get("quiz")
+        
+    except Exception as e:
+        print(f"[BG-TASK ERROR] Generate AI: {e}")
+        return
+
+    try:
+        print(f"[BG-TASK] Mengirim hasil ke Laravel...")
+        laravel_url = f"{LARAVEL_API_URL}/materials/{req.material_id}/learning-path"
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
             "X-Internal-Key": LARAVEL_INTERNAL_KEY
         }
         
-        laravel_res = requests.post(laravel_url, json=learning_path, headers=headers, timeout=300)
-        laravel_res.raise_for_status()
-        
-        print(f"[INFO] Sukses! Data tersimpan di Laravel (Material ID: {req.material_id})")
-        
-        return {
-            "status": "success", 
-            "message": "Learning path generated and saved to Laravel DB."
+        payload = {
+            "learning_path": learning_path,
+            "quiz": quiz_data
         }
+        
+        laravel_res = requests.post(laravel_url, json=payload, headers=headers, timeout=60)
+        laravel_res.raise_for_status()
+        print(f"[BG-TASK] Sukses! Tersimpan di Laravel (ID: {req.material_id})")
     except Exception as e:
-        print(f"[ERROR LARAVEL] {type(e).__name__}: {e}")
-        raise HTTPException(status_code=500, detail=f"Gagal mengirim ke Laravel: {e}")
+        print(f"[BG-TASK ERROR] Gagal kirim ke Laravel: {e}")
+
+@app.post("/process-material")
+async def process_material(req: ProcessRequest, background_tasks: BackgroundTasks):
+    background_tasks.add_task(process_ai_pipeline, req)
+    return {"status": "accepted", "message": "Processing started in background."}
 
 if __name__ == "__main__":
     import uvicorn

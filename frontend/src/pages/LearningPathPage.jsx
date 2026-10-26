@@ -1,44 +1,95 @@
-import { Link, Navigate, useParams } from 'react-router-dom'
-import { ClipboardCheck } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import ModuleRow from '../components/learning/ModuleRow.jsx'
 import Panel from '../components/learning/Panel.jsx'
 import ProgressRing from '../components/learning/ProgressRing.jsx'
 import Button from '../components/ui/Button.jsx'
 import ProgressTrack from '../components/ui/ProgressTrack.jsx'
-import TextAction from '../components/ui/TextAction.jsx'
-import {
-  learningPath,
-  learningPathUrl,
-  moduleUrl,
-} from '../lib/learningPath'
+import { LoadingState, ErrorState } from '../components/learning/PageState.jsx'
+import { getLearningPath } from '../lib/learningPath'
 
-/**
- * LearningPathPage — A03 "Introduction to Database Systems".
- *
- * Desktop: kolom urutan modul (fleksibel) + 28px gap + rail progress 352px di
- * dalam batas konten 1128px. Kedua kolom menumpuk di bawah breakpoint `xl`
- * supaya baris modul tetap nyaman dibaca di 1024–1279px.
- */
 export default function LearningPathPage() {
-  const { pathSlug } = useParams()
+  const { materialId } = useParams()
+  const navigate = useNavigate()
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
-  if (pathSlug !== learningPath.slug) {
-    return <Navigate to={learningPathUrl()} replace />
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true)
+        const res = await getLearningPath(materialId)
+        setData(res)
+      } catch (err) {
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [materialId])
+
+  if (loading) return <div className="p-10"><LoadingState label="Memuat learning path..." /></div>
+  if (error || !data) return <div className="p-10"><ErrorState title="Gagal memuat data" onRetry={() => window.location.reload()} /></div>
+
+  // --- Kalkulasi Progress ---
+  let totalTopics = 0
+  let completedTopics = 0
+  let nextTopic = null
+
+  // Mapping modul agar sesuai dengan format ModuleRow
+  const mappedModules = data.modules.map((mod, index) => {
+    let modTotal = mod.topics.length
+    let modCompleted = 0
+    
+    mod.topics.forEach(t => {
+      totalTopics++
+      if (t.is_completed) {
+        completedTopics++
+        modCompleted++
+      } else if (!nextTopic) {
+        nextTopic = t
+      }
+    })
+
+    let status = 'in_progress'
+    if (modCompleted === modTotal && modTotal > 0) {
+      status = 'completed'
+    }
+
+    return {
+      ...mod,
+      status: status,
+      totalTopics: modTotal,
+      completedTopics: modCompleted,
+      summary: `Modul ${mod.order_index}`, 
+    }
+  })
+
+  const progress = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100)
+  
+  // Cek apakah benar-benar sudah 100% (Materi selesai DAN Kuis dikerjakan)
+  const isFullyComplete = progress === 100 && data.has_completed_quiz
+
+  // Jika semua materi selesai tapi kuis belum, nextTopic jadi null
+  if (progress === 100) {
+    nextTopic = null
+  } else if (!nextTopic && data.modules.length > 0) {
+    // Fallback jika karena suatu hal nextTopic tidak ditemukan
+    const lastModule = data.modules[data.modules.length - 1]
+    nextTopic = lastModule.topics[lastModule.topics.length - 1]
   }
 
-  const progress = Math.round((learningPath.completedTopics / learningPath.totalTopics) * 100)
-  const continueUrl = moduleUrl(learningPath.currentTopic.moduleSlug, pathSlug)
-
   return (
-    <div data-testid="learning-path-page" className="flex w-full flex-col px-6 pt-7 pb-8 md:px-8 md:py-8 lg:p-10">
+    <div data-testid="learning-path-page" className="flex w-full flex-col px-6 pt-7 pb-8 md:px-8 md:py-8 lg:p-10 bg-[#f7f7f2] min-h-screen">
       <div data-testid="learning-content" className="mx-auto flex w-full max-w-[1128px] flex-col gap-7">
         <header className="flex w-full flex-col gap-2">
           <h1 className="text-[28px] leading-[1.5] font-black text-[#171916] md:text-[32px]">
-            {learningPath.title}
+            {data.title}
           </h1>
           <p className="text-[14px] leading-[1.5] font-medium text-[#62665c]">
-            {learningPath.totalTopics} topics · {learningPath.modules.length} modules · Source:{' '}
-            {learningPath.sourceFile}
+            {totalTopics} topics · {data.modules.length} modules · {data.difficulty}
           </p>
         </header>
 
@@ -50,20 +101,20 @@ export default function LearningPathPage() {
                   Your learning path
                 </h2>
                 <span className="shrink-0 rounded-[6px] border border-solid border-[#171916] bg-[#d5f35b] px-[10px] py-[5px] text-[11px] leading-[normal] font-black whitespace-nowrap text-[#171916]">
-                  {learningPath.modules.length} modules
+                  {data.modules.length} modules
                 </span>
               </div>
 
               <div className="flex w-full flex-col gap-4">
-                {learningPath.modules.map((module) => (
-                  <ModuleRow key={module.slug} module={module} pathSlug={pathSlug} />
+                {mappedModules.map((module) => (
+                  <ModuleRow 
+                    key={module.id} 
+                    module={module} 
+                    pathSlug={materialId} 
+                  />
                 ))}
               </div>
             </Panel>
-
-            <p className="text-[11px] leading-[1.5] font-medium text-[#62665c]">
-              Modules are ordered by your course material. Finish a module to open the next.
-            </p>
           </div>
 
           <div data-testid="learning-path-rail" className="flex w-full flex-col gap-5 xl:w-[352px] xl:shrink-0">
@@ -77,10 +128,15 @@ export default function LearningPathPage() {
                 </div>
                 <div className="flex min-w-px flex-1 flex-col gap-2">
                   <p className="text-[20px] leading-[1.5] font-black text-[#171916]">
-                    {learningPath.completedTopics} of {learningPath.totalTopics}
+                    {completedTopics} of {totalTopics}
                   </p>
+                  {/* LOGIKA TEXT DIUBAH DI SINI */}
                   <p className="text-[12px] leading-[1.5] font-medium text-[#62665c]">
-                    Your next topic is ready. Keep your momentum.
+                    {isFullyComplete 
+                      ? 'Selamat! Anda telah menyelesaikan seluruh materi dan kuis.' 
+                      : progress === 100 
+                        ? 'Materi selesai. Saatnya mengerjakan kuis!' 
+                        : 'Your next topic is ready. Keep your momentum.'}
                   </p>
                 </div>
               </div>
@@ -88,16 +144,19 @@ export default function LearningPathPage() {
 
             <Panel data-testid="continue-card" className="flex w-full flex-col gap-4 p-6">
               <p className="text-[22px] leading-[1.5] font-black text-[#171916]">
-                Continue your last lesson
+                {isFullyComplete ? 'Course Completed' : 'Continue your last lesson'}
               </p>
 
               <div className="flex w-full flex-col gap-1">
-                <p className="text-[11px] leading-[1.5] font-bold text-[#62665c]">CURRENT TOPIC</p>
-                <p className="text-[14px] leading-[1.5] font-black text-[#171916]">
-                  {learningPath.currentTopic.title}
+                <p className="text-[11px] leading-[1.5] font-bold text-[#62665c]">
+                  {isFullyComplete ? 'STATUS' : 'CURRENT TOPIC'}
                 </p>
-                <p className="text-[12px] leading-[1.5] font-medium text-[#62665c]">
-                  Next · {learningPath.currentTopic.next}
+                <p className="text-[14px] leading-[1.5] font-black text-[#171916]">
+                  {isFullyComplete 
+                    ? 'Semua Materi & Kuis Selesai' 
+                    : nextTopic 
+                      ? nextTopic.title 
+                      : 'Materi Selesai'}
                 </p>
               </div>
 
@@ -105,48 +164,41 @@ export default function LearningPathPage() {
                 <div className="flex w-full items-start justify-between text-[12px] leading-[15px] whitespace-nowrap">
                   <p className="font-medium text-[#62665c]">Path progress</p>
                   <p className="font-black text-[#171916]">
-                    {learningPath.completedTopics} of {learningPath.totalTopics} topics
+                    {completedTopics} of {totalTopics} topics
                   </p>
                 </div>
                 <ProgressTrack value={progress} />
               </div>
 
-              <Button as={Link} to={continueUrl} className="w-full">
-                Continue →
-              </Button>
-            </Panel>
-
-            <Panel data-testid="quiz-card" className="flex w-full flex-col gap-4 p-6">
-              <div className="flex items-center gap-2">
-                <ClipboardCheck
-                  size={20}
-                  strokeWidth={1.75}
-                  className="shrink-0 text-[#171916]"
-                  aria-hidden="true"
-                />
-                <p className="text-[11px] leading-[normal] font-black whitespace-nowrap text-[#62665c]">
-                  Quiz
-                </p>
-              </div>
-
-              <p className="text-[14px] leading-[1.5] font-black text-[#171916]">
-                {learningPath.quiz.title}
-              </p>
-
-              <p className="text-[11px] leading-[1.5] font-medium text-[#62665c]">
-                {learningPath.quiz.questions} questions · About {learningPath.quiz.minutes} minutes
-              </p>
-
-              <TextAction as={Link} to="/quizzes">
-                Open quiz details →
-              </TextAction>
+              {/* LOGIKA TOMBOL DIUBAH DI SINI */}
+              {isFullyComplete ? (
+                <Button 
+                  onClick={() => navigate(`/materials/${materialId}/quiz`)}
+                  className="w-full bg-white text-[#171916]"
+                >
+                  Lihat Hasil Kuis →
+                </Button>
+              ) : progress === 100 ? (
+                <Button 
+                  onClick={() => navigate(`/materials/${materialId}/quiz`)}
+                  className="w-full bg-[#d5f35b]"
+                >
+                  Kerjakan Kuis →
+                </Button>
+              ) : (
+                nextTopic && (
+                  <Button 
+                    as={Link} 
+                    to={`/materials/${materialId}/topics/${nextTopic.id}`} 
+                    className="w-full"
+                  >
+                    Continue →
+                  </Button>
+                )
+              )}
             </Panel>
           </div>
         </div>
-
-        <p className="text-[11px] leading-[1.5] font-medium text-[#62665c]">
-          Example student data · For design review only
-        </p>
       </div>
     </div>
   )

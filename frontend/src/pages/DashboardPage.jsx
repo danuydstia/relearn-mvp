@@ -1,29 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import LearningInvitation from '../components/dashboard/LearningInvitation.jsx'
 import ContinueLearning from '../components/dashboard/ContinueLearning.jsx'
 import LearningPerformance from '../components/dashboard/LearningPerformance.jsx'
 import RecentLearning from '../components/dashboard/RecentLearning.jsx'
 import YourCommunity from '../components/dashboard/YourCommunity.jsx'
 import ProgressAchievements from '../components/dashboard/ProgressAchievements.jsx'
-import MaterialStatus from '../components/dashboard/MaterialStatus.jsx'
 import UploadMaterialModal from '../components/materials/UploadMaterialModal.jsx'
 import { ACCEPTED_MATERIAL_TYPES, listMaterials, uploadMaterial } from '../lib/materials'
+import { api } from '../lib/api'
 
-/**
- * DashboardPage — "Learning home" (neo-brutalist).
- *
- * Urutan blok (satu kolom, gap 32px):
- *   1. LearningInvitation  — hero + kartu lime (CTA upload, AI usage)
- *   2. ContinueLearning    — kartu putih (808) + kartu hitam (252)
- *   3. LearningPerformance — strip 3 panel
- *   4. Grid 3 kolom (420 : 320 : 300): Recent Learning, Community, Progress
- *   5. MaterialStatus      — empty / processing / failed (kondisional)
- *   6. Catatan footer
- * Di bawah 1024px semua menumpuk; baris 4 jadi 2 kolom di tablet.
- * Gutter: 24px mobile, 32px tablet, 40px desktop.
- */
 export default function DashboardPage() {
+  const navigate = useNavigate()
   const fileInputRef = useRef(null)
+  const pollingRef = useRef(null)
+
   const [materials, setMaterials] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [uploadingName, setUploadingName] = useState('')
@@ -37,6 +28,7 @@ export default function DashboardPage() {
       .catch(() => alive && setMaterials(null))
     return () => {
       alive = false
+      if (pollingRef.current) clearInterval(pollingRef.current)
     }
   }, [])
 
@@ -47,21 +39,76 @@ export default function DashboardPage() {
     event.target.value = ''
     if (!file) return
 
-    setIsUploadModalOpen(false)
     setUploading(true)
     setUploadingName(file.name)
     setUploadError('')
+    
     try {
       const material = await uploadMaterial(file)
-      setMaterials((current) => [material, ...(current ?? [])])
+      
+      if (material.status === 'failed') {
+        setUploadError('AI gagal memproses dokumen. Silakan coba lagi.')
+        setUploading(false)
+        return
+      }
+
+      startPolling(material.id)
+      
     } catch (err) {
       const res = err.response
-      const first = res?.data?.errors?.file?.[0]
-      setUploadError(first || res?.data?.message || 'Upload failed. Please try again.')
-    } finally {
+      let errorMsg = 'Upload failed. Please try again.'
+      
+      if (res?.data?.errors?.file?.[0]) {
+        errorMsg = res.data.errors.file[0]
+      } else if (res?.data?.message) {
+        errorMsg = res.data.message
+      }
+      
+      setUploadError(errorMsg)
       setUploading(false)
-      setUploadingName('')
     }
+  }
+
+  const startPolling = (materialId) => {
+    let attempts = 0
+    // PERPANJANG MENJADI 20 MENIT (400 x 3 detik)
+    const maxAttempts = 400 
+
+    if (pollingRef.current) clearInterval(pollingRef.current)
+
+    pollingRef.current = setInterval(async () => {
+      attempts++
+      
+      if (attempts > maxAttempts) {
+        clearInterval(pollingRef.current)
+        setUploadError('Proses memakan waktu terlalu lama (lebih dari 20 menit). Silakan cek halaman Materials nanti.')
+        setUploading(false)
+        return
+      }
+
+      try {
+        const res = await api.get(`/materials/${materialId}`)
+        const material = res.data.data || res.data 
+
+        // LOG UNTUK MELIHAT STATUS ASLI DARI DATABASE (Buka F12 > Console)
+        console.log(`[Polling ${attempts}] Status Material ID ${materialId}:`, material.status)
+
+        if (material.status === 'processed') {
+          clearInterval(pollingRef.current)
+          setUploading(false)
+          setUploadingName('')
+          setIsUploadModalOpen(false)
+          navigate(`/materials/${materialId}/learning-path`)
+          
+        } else if (material.status === 'failed') {
+          clearInterval(pollingRef.current)
+          setUploadError('AI gagal memproses dokumen. Silakan coba lagi.')
+          setUploading(false)
+        }
+      } catch (err) {
+        console.error("❌ POLLING ERROR:", err.response?.data || err.message)
+      }
+    }, 3000)
   }
 
   return (
@@ -69,14 +116,13 @@ export default function DashboardPage() {
       <div className="flex w-full max-w-[1128px] flex-col gap-8">
         <LearningInvitation onNewSession={() => setIsUploadModalOpen(true)} />
 
-        {uploadError && (
+        {uploadError && !isUploadModalOpen && (
           <p className="text-[13px] font-bold text-[#b42318]" role="alert">
             {uploadError}
           </p>
         )}
 
         <ContinueLearning />
-
         <LearningPerformance />
 
         <div className="grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-[minmax(0,420fr)_minmax(0,320fr)_minmax(0,300fr)]">
@@ -84,13 +130,6 @@ export default function DashboardPage() {
           <YourCommunity />
           <ProgressAchievements />
         </div>
-
-        <MaterialStatus
-          materials={materials}
-          uploading={uploading}
-          uploadingName={uploadingName}
-          onUpload={() => setIsUploadModalOpen(true)}
-        />
 
         <p className="w-full text-[11px] font-black text-[#62665c] opacity-80">
           Example student data · For design review only
@@ -106,8 +145,11 @@ export default function DashboardPage() {
 
         <UploadMaterialModal
           isOpen={isUploadModalOpen}
-          onClose={() => setIsUploadModalOpen(false)}
+          onClose={() => !uploading && setIsUploadModalOpen(false)}
           onChooseFile={openUploadPicker}
+          uploading={uploading}
+          uploadingName={uploadingName}
+          uploadError={uploadError}
         />
       </div>
     </div>
