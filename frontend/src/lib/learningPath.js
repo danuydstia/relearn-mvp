@@ -9,6 +9,11 @@ export async function getLearningPath(materialId) {
   return response.data
 }
 
+export async function saveQuizAttempt(materialId, payload) {
+  const response = await api.post(`/materials/${materialId}/quiz/attempt`, payload)
+  return response.data
+}
+
 /**
  * Menandai topik selesai
  * @param {number|string} materialId 

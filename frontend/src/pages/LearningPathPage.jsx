@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import ModuleRow from '../components/learning/ModuleRow.jsx'
 import Panel from '../components/learning/Panel.jsx'
 import ProgressRing from '../components/learning/ProgressRing.jsx'
@@ -10,6 +10,7 @@ import { getLearningPath } from '../lib/learningPath'
 
 export default function LearningPathPage() {
   const { materialId } = useParams()
+  const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -52,7 +53,6 @@ export default function LearningPathPage() {
       }
     })
 
-    // TIDAK ADA LAGI STATUS 'LOCKED'. Hanya 'completed' atau 'in_progress'
     let status = 'in_progress'
     if (modCompleted === modTotal && modTotal > 0) {
       status = 'completed'
@@ -69,8 +69,14 @@ export default function LearningPathPage() {
 
   const progress = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100)
   
-  // Jika semua selesai, arahkan ke topik terakhir
-  if (!nextTopic && data.modules.length > 0) {
+  // Cek apakah benar-benar sudah 100% (Materi selesai DAN Kuis dikerjakan)
+  const isFullyComplete = progress === 100 && data.has_completed_quiz
+
+  // Jika semua materi selesai tapi kuis belum, nextTopic jadi null
+  if (progress === 100) {
+    nextTopic = null
+  } else if (!nextTopic && data.modules.length > 0) {
+    // Fallback jika karena suatu hal nextTopic tidak ditemukan
     const lastModule = data.modules[data.modules.length - 1]
     nextTopic = lastModule.topics[lastModule.topics.length - 1]
   }
@@ -124,8 +130,13 @@ export default function LearningPathPage() {
                   <p className="text-[20px] leading-[1.5] font-black text-[#171916]">
                     {completedTopics} of {totalTopics}
                   </p>
+                  {/* LOGIKA TEXT DIUBAH DI SINI */}
                   <p className="text-[12px] leading-[1.5] font-medium text-[#62665c]">
-                    {progress === 100 ? 'Semua materi telah selesai!' : 'Your next topic is ready. Keep your momentum.'}
+                    {isFullyComplete 
+                      ? 'Selamat! Anda telah menyelesaikan seluruh materi dan kuis.' 
+                      : progress === 100 
+                        ? 'Materi selesai. Saatnya mengerjakan kuis!' 
+                        : 'Your next topic is ready. Keep your momentum.'}
                   </p>
                 </div>
               </div>
@@ -133,13 +144,19 @@ export default function LearningPathPage() {
 
             <Panel data-testid="continue-card" className="flex w-full flex-col gap-4 p-6">
               <p className="text-[22px] leading-[1.5] font-black text-[#171916]">
-                Continue your last lesson
+                {isFullyComplete ? 'Course Completed' : 'Continue your last lesson'}
               </p>
 
               <div className="flex w-full flex-col gap-1">
-                <p className="text-[11px] leading-[1.5] font-bold text-[#62665c]">CURRENT TOPIC</p>
+                <p className="text-[11px] leading-[1.5] font-bold text-[#62665c]">
+                  {isFullyComplete ? 'STATUS' : 'CURRENT TOPIC'}
+                </p>
                 <p className="text-[14px] leading-[1.5] font-black text-[#171916]">
-                  {nextTopic ? nextTopic.title : 'Selesai'}
+                  {isFullyComplete 
+                    ? 'Semua Materi & Kuis Selesai' 
+                    : nextTopic 
+                      ? nextTopic.title 
+                      : 'Materi Selesai'}
                 </p>
               </div>
 
@@ -153,14 +170,31 @@ export default function LearningPathPage() {
                 <ProgressTrack value={progress} />
               </div>
 
-              {nextTopic && (
+              {/* LOGIKA TOMBOL DIUBAH DI SINI */}
+              {isFullyComplete ? (
                 <Button 
-                  as={Link} 
-                  to={`/materials/${materialId}/topics/${nextTopic.id}`} 
-                  className="w-full"
+                  onClick={() => navigate(`/materials/${materialId}/quiz`)}
+                  className="w-full bg-white text-[#171916]"
                 >
-                  Continue →
+                  Lihat Hasil Kuis →
                 </Button>
+              ) : progress === 100 ? (
+                <Button 
+                  onClick={() => navigate(`/materials/${materialId}/quiz`)}
+                  className="w-full bg-[#d5f35b]"
+                >
+                  Kerjakan Kuis →
+                </Button>
+              ) : (
+                nextTopic && (
+                  <Button 
+                    as={Link} 
+                    to={`/materials/${materialId}/topics/${nextTopic.id}`} 
+                    className="w-full"
+                  >
+                    Continue →
+                  </Button>
+                )
               )}
             </Panel>
           </div>

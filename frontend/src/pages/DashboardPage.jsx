@@ -8,12 +8,12 @@ import YourCommunity from '../components/dashboard/YourCommunity.jsx'
 import ProgressAchievements from '../components/dashboard/ProgressAchievements.jsx'
 import UploadMaterialModal from '../components/materials/UploadMaterialModal.jsx'
 import { ACCEPTED_MATERIAL_TYPES, listMaterials, uploadMaterial } from '../lib/materials'
-import { api } from '../lib/api' // Pastikan path ini sesuai dengan file axios Anda
+import { api } from '../lib/api'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
-  const pollingRef = useRef(null) // Ref untuk menyimpan setInterval agar bisa di-clear
+  const pollingRef = useRef(null)
 
   const [materials, setMaterials] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -28,7 +28,6 @@ export default function DashboardPage() {
       .catch(() => alive && setMaterials(null))
     return () => {
       alive = false
-      // Bersihkan interval jika user pindah halaman saat proses berjalan
       if (pollingRef.current) clearInterval(pollingRef.current)
     }
   }, [])
@@ -45,7 +44,6 @@ export default function DashboardPage() {
     setUploadError('')
     
     try {
-      // 1. Upload file. Laravel akan membalas dengan status 'pending' (sangat cepat)
       const material = await uploadMaterial(file)
       
       if (material.status === 'failed') {
@@ -54,7 +52,6 @@ export default function DashboardPage() {
         return
       }
 
-      // 2. Mulai Polling untuk mengecek status ke Laravel
       startPolling(material.id)
       
     } catch (err) {
@@ -72,38 +69,31 @@ export default function DashboardPage() {
     }
   }
 
-  // Fungsi untuk mengecek status ke database Laravel
   const startPolling = (materialId) => {
     let attempts = 0
-    const maxAttempts = 100 // ~5 menit (100 x 3 detik)
+    // PERPANJANG MENJADI 20 MENIT (400 x 3 detik)
+    const maxAttempts = 400 
 
-    // Hapus interval lama jika ada
     if (pollingRef.current) clearInterval(pollingRef.current)
 
     pollingRef.current = setInterval(async () => {
       attempts++
       
-      // Jika melebihi 5 menit, hentikan
       if (attempts > maxAttempts) {
         clearInterval(pollingRef.current)
-        setUploadError('Proses memakan waktu terlalu lama. Silakan cek halaman Materials nanti.')
+        setUploadError('Proses memakan waktu terlalu lama (lebih dari 20 menit). Silakan cek halaman Materials nanti.')
         setUploading(false)
         return
       }
 
       try {
-        // Panggil API GET /materials/{id}
         const res = await api.get(`/materials/${materialId}`)
-        // Sesuaikan dengan struktur response Laravel Anda (biasanya di res.data.data atau res.data)
         const material = res.data.data || res.data 
 
-        // ==========================================
-        // TAMBAHKAN CONSOLE.LOG DI SINI
-        // ==========================================
-        console.log("🔄 CEK STATUS:", material.status, material) 
+        // LOG UNTUK MELIHAT STATUS ASLI DARI DATABASE (Buka F12 > Console)
+        console.log(`[Polling ${attempts}] Status Material ID ${materialId}:`, material.status)
 
         if (material.status === 'processed') {
-          // SUKSES! Hentikan polling dan redirect
           clearInterval(pollingRef.current)
           setUploading(false)
           setUploadingName('')
@@ -111,28 +101,21 @@ export default function DashboardPage() {
           navigate(`/materials/${materialId}/learning-path`)
           
         } else if (material.status === 'failed') {
-          // GAGAL! Hentikan polling dan tampilkan error
           clearInterval(pollingRef.current)
           setUploadError('AI gagal memproses dokumen. Silakan coba lagi.')
           setUploading(false)
         }
-        // Jika masih 'pending', biarkan interval berjalan (tidak melakukan apa-apa)
       } catch (err) {
-        // ==========================================
-        // TAMBAHKAN JUGA CONSOLE.ERROR DI SINI UNTUK LIHAT JIKA API GAGAL
-        // ==========================================
         console.error("❌ POLLING ERROR:", err.response?.data || err.message)
       }
-    }, 3000) // Cek setiap 3 detik
+    }, 3000)
   }
-
 
   return (
     <div className="flex w-full flex-col bg-[#f7f7f2] px-6 pt-7 pb-8 md:px-8 md:py-8 lg:px-10 lg:pt-9 lg:pb-7">
       <div className="flex w-full max-w-[1128px] flex-col gap-8">
         <LearningInvitation onNewSession={() => setIsUploadModalOpen(true)} />
 
-        {/* Tampilkan error di dashboard jika upload gagal di luar modal */}
         {uploadError && !isUploadModalOpen && (
           <p className="text-[13px] font-bold text-[#b42318]" role="alert">
             {uploadError}
@@ -160,10 +143,9 @@ export default function DashboardPage() {
           onChange={handleFileSelected}
         />
 
-        {/* Kirim state uploading ke Modal */}
         <UploadMaterialModal
           isOpen={isUploadModalOpen}
-          onClose={() => !uploading && setIsUploadModalOpen(false)} // Cegah close saat uploading
+          onClose={() => !uploading && setIsUploadModalOpen(false)}
           onChooseFile={openUploadPicker}
           uploading={uploading}
           uploadingName={uploadingName}

@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Material;
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Models\Topic;
 use App\Models\UserProgress;
-use App\Models\Quiz;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -131,12 +132,22 @@ class LearningPathController extends Controller
             }
         }
 
+        // Cek apakah kuis sudah pernah dikerjakan
+        $quiz = Quiz::where('material_id', $material->id)->first();
+        $hasCompletedQuiz = false;
+        if ($quiz) {
+            $hasCompletedQuiz = QuizAttempt::where('user_id', $request->user()->id)
+                ->where('quiz_id', $quiz->id)
+                ->exists();
+        }
+
         return response()->json([
             'id' => $data['id'],
             'title' => $data['title'],
             'summary' => $data['summary'],
             'difficulty' => $data['difficulty'],
             'total_topics' => $totalTopics,
+            'has_completed_quiz' => $hasCompletedQuiz, // <-- Kirim status kuis ke Frontend
             'modules' => $data['modules']
         ]);
     }
@@ -167,6 +178,43 @@ class LearningPathController extends Controller
             return response()->json(['message' => 'Quiz belum tersedia'], 404);
         }
 
-        return response()->json($quiz);
+        // Ambil attempt terakhir user untuk kuis ini
+        $latestAttempt = QuizAttempt::where('user_id', $request->user()->id)
+            ->where('quiz_id', $quiz->id)
+            ->latest()
+            ->first();
+
+        return response()->json([
+            'quiz' => $quiz,
+            'latest_attempt' => $latestAttempt
+        ]);
     }
+
+    
+    public function saveQuizAttempt(Request $request, Material $material): JsonResponse
+    {
+        if ($material->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $quiz = Quiz::where('material_id', $material->id)->first();
+        if (!$quiz) return response()->json(['message' => 'Quiz not found'], 404);
+
+        $request->validate([
+            'answers' => 'required|array',
+            'score' => 'required|integer',
+            'total_questions' => 'required|integer'
+        ]);
+
+        QuizAttempt::create([
+            'user_id' => $request->user()->id,
+            'quiz_id' => $quiz->id,
+            'score' => $request->score,
+            'total_questions' => $request->total_questions,
+            'answers' => $request->answers
+        ]);
+
+        return response()->json(['message' => 'Attempt saved']);
+    }
+
 }

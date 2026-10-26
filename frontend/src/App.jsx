@@ -262,9 +262,9 @@ function App() {
         }
       />
 
-      {/* ── Quizzes Routes ── */}
+            {/* ── Quizzes Routes ── */}
       <Route
-        path="/quizzes/:quizId"
+        path="/materials/:materialId/quiz"
         element={
           <ProtectedRoute>
             <AppShell title="Quizzes">
@@ -274,7 +274,7 @@ function App() {
         }
       />
       <Route
-        path="/quizzes/:quizId/question"
+        path="/materials/:materialId/quiz/question"
         element={
           <ProtectedRoute>
             <AppShell title="Quizzes">
@@ -284,7 +284,7 @@ function App() {
         }
       />
       <Route
-        path="/quizzes/:quizId/results"
+        path="/materials/:materialId/quiz/results"
         element={
           <ProtectedRoute>
             <AppShell title="Quizzes">
@@ -294,7 +294,7 @@ function App() {
         }
       />
       <Route
-        path="/quizzes/:quizId/review"
+        path="/materials/:materialId/quiz/review"
         element={
           <ProtectedRoute>
             <AppShell title="Quizzes">
@@ -304,7 +304,7 @@ function App() {
         }
       />
       
-      <Route
+      {/* <Route
         path="/quizzes"
         element={
           <ProtectedRoute>
@@ -313,7 +313,7 @@ function App() {
             </AppShell>
           </ProtectedRoute>
         }
-      />
+      /> */}
 
       <Route
         path="/profile"

@@ -62,16 +62,16 @@ export default function ModuleLessonPage() {
   const handleNext = async () => {
     try {
       setIsCompleting(true)
-      // Tembak API untuk tandai selesai jika belum
       if (!currentTopic.is_completed) {
         await markTopicComplete(materialId, currentTopic.id)
       }
       
       if (nextTopic) {
         navigate(`/materials/${materialId}/topics/${nextTopic.id}`)
-        fetchData() // Refresh data agar status is_completed terupdate
+        fetchData()
       } else {
-        navigate(`/materials/${materialId}/learning-path`)
+        // Jika ini materi terakhir, langsung ke kuis!
+        navigate(`/materials/${materialId}/quiz`)
       }
     } catch (err) {
       alert('Gagal menyimpan progress. Coba lagi.')
@@ -79,6 +79,7 @@ export default function ModuleLessonPage() {
       setIsCompleting(false)
     }
   }
+
 
   return (
     <div data-testid="lesson-page" className="flex w-full flex-col px-6 pt-7 pb-8 md:px-8 md:py-8 lg:p-10 bg-[#f7f7f2] min-h-screen">
@@ -102,7 +103,10 @@ export default function ModuleLessonPage() {
               currentTopicId={currentTopic.id}
               pathSlug={materialId}
             />
-            <PracticePanel quiz={{ title: 'Quiz', questions: 5, minutes: 10 }} />
+            <PracticePanel 
+              quiz={{ title: 'Quiz', questions: 5, minutes: 10 }} 
+              pathSlug={materialId} 
+            />
           </div>
 
           {/* Konten Utama */}
@@ -144,12 +148,6 @@ export default function ModuleLessonPage() {
               </p>
 
               <div className="flex w-full items-center gap-4 sm:w-auto sm:shrink-0">
-                <Link
-                  to="#"
-                  className="inline-flex min-h-11 flex-1 items-center text-[13px] leading-[1.5] font-black whitespace-nowrap text-[#405c04] hover:underline sm:flex-none"
-                >
-                  Take quiz →
-                </Link>
 
                 {/* Tombol Next / Selesai */}
                 <Button

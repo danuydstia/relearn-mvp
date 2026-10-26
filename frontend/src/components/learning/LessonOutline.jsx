@@ -120,17 +120,12 @@ export function LessonOutline({ pathData, currentTopicId, pathSlug }) {
   )
 }
 
-export function PracticePanel({ quiz }) {
+export function PracticePanel({ quiz, pathSlug }) { // <-- Tambahkan pathSlug
   return (
     <Panel data-testid="practice-panel" className="flex w-full flex-col gap-4 p-5">
-      <p className="text-[13px] leading-[1.5] font-black text-[#171916]">
-        Practice when you're ready
-      </p>
-      <p className="text-[12px] leading-[1.5] font-medium text-[#62665c]">
-        {quiz.title} checks your understanding of this module.
-      </p>
+      {/* ... */}
       <Link
-        to="#"
+        to={`/materials/${pathSlug}/quiz`} // <-- Ubah to="#"
         className="self-start text-[13px] leading-[1.5] font-black whitespace-nowrap text-[#405c04] hover:underline"
       >
         Quiz details →

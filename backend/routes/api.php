@@ -46,7 +46,7 @@ Route::prefix('v1')->group(function () {
 
         // 3. Endpoint untuk mengambil kuis
         Route::get('/materials/{material}/quiz', [LearningPathController::class, 'getQuiz']);
-
+        Route::post('/materials/{material}/quiz/attempt', [LearningPathController::class, 'saveQuizAttempt']);
         // Admin — desktop console, admin role only.
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::get('/overview', [AdminOverviewController::class, 'index']);
