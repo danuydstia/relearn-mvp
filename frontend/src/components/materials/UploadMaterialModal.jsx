@@ -188,7 +188,7 @@ export default function UploadMaterialModal({
 
               {/* Teks */}
               <div className="flex w-full flex-col items-center gap-1 text-center">
-                <p className="text-[18px] font-black text-[#171916]">AI sedang bekerja</p>
+                <p className="text-[18px] font-black text-[#171916]">Your material is being processed...</p>
                 <p className="w-full max-w-[400px] truncate text-[14px] font-medium text-[#62665c]">
                   {uploadingName || 'Dokumen Anda'}
                 </p>
