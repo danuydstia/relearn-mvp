@@ -44,6 +44,8 @@ Route::prefix('v1')->group(function () {
         // 2. Menandai topik telah selesai dibaca
         Route::post('/materials/{material}/topics/{topic}/complete', [LearningPathController::class, 'completeTopic']);
 
+        // 3. Endpoint untuk mengambil kuis
+        Route::get('/materials/{material}/quiz', [LearningPathController::class, 'getQuiz']);
 
         // Admin — desktop console, admin role only.
         Route::middleware('admin')->prefix('admin')->group(function () {
