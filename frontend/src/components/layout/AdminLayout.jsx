@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Bell, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import Avatar from '../ui/Avatar.jsx'
@@ -21,10 +21,14 @@ const todayLabel = new Date().toLocaleDateString('en-US', {
  * desktop frame, so viewports under 1280px get an explicit notice instead of a
  * collapsed layout, and there is no mobile navigation.
  */
-export default function AdminLayout({ children }) {
+export default function AdminLayout({ title = 'Admin', children }) {
   const { user, logout } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    document.title = title ? `${title} · Admin · ReLearn` : 'Admin · ReLearn'
+  }, [title])
 
   return (
     <>

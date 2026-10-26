@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Sidebar from './Sidebar.jsx'
 import TopBar from './TopBar.jsx'
 import MobileNav from './MobileNav.jsx'
@@ -16,6 +16,10 @@ import DevPlanSwitcher from '../dev/DevPlanSwitcher.jsx'
  */
 export default function AppShell({ title = 'Dashboard', children }) {
   const [moreOpen, setMoreOpen] = useState(false)
+
+  useEffect(() => {
+    document.title = title ? `${title} · ReLearn` : 'ReLearn'
+  }, [title])
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-[#f8f7f3] md:flex-row">

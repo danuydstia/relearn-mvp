@@ -145,6 +145,10 @@ export default function LandingPage() {
   const menuRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  useEffect(() => {
+    document.title = 'ReLearn · Self-learning, your way.'
+  }, []);
+
   // Klik link navbar: efek "pop" pada link + scroll halus ke section tujuan
   const handleNavClick = (e, href) => {
     const target = document.querySelector(href);

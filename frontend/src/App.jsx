@@ -42,15 +42,18 @@ function GoogleCallbackHandler() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const auth = useAuth()
-  const [error, setError] = useState('')
+
+  const status = searchParams.get('status')
+  const message = searchParams.get('message')
+  const token = searchParams.get('token')
+
+  const [asyncError, setAsyncError] = useState('')
+  const error = (status === 'error' ? (message || 'Google authentication failed') : '') || asyncError
 
   useEffect(() => {
-    const token = searchParams.get('token')
-    const status = searchParams.get('status')
-    const message = searchParams.get('message')
+    document.title = 'Processing Login · ReLearn'
 
     if (status === 'error') {
-      setError(message || 'Google authentication failed')
       const t = setTimeout(() => navigate('/login'), 2500)
       return () => clearTimeout(t)
     }
@@ -63,7 +66,7 @@ function GoogleCallbackHandler() {
     auth.fetchUser(token)
       .then((user) => navigate(landingPathFor(user)))
       .catch(() => {
-        setError('Gagal memproses login Google')
+        setAsyncError('Gagal memproses login Google')
         const t = setTimeout(() => navigate('/login'), 2500)
         return () => clearTimeout(t)
       })
@@ -360,7 +363,7 @@ function App() {
         path={ADMIN_OVERVIEW_PATH}
         element={
           <AdminRoute>
-            <AdminLayout>
+            <AdminLayout title="Overview">
               <AdminOverviewPage />
             </AdminLayout>
           </AdminRoute>
@@ -371,7 +374,7 @@ function App() {
         path={ADMIN_USERS_PATH}
         element={
           <AdminRoute>
-            <AdminLayout>
+            <AdminLayout title="Users">
               <AdminUsersPage />
             </AdminLayout>
           </AdminRoute>
@@ -384,7 +387,7 @@ function App() {
           path={to}
           element={
             <AdminRoute>
-              <AdminLayout>
+              <AdminLayout title={label}>
                 <AdminUnavailablePage title={label} />
               </AdminLayout>
             </AdminRoute>

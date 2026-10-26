@@ -1,10 +1,15 @@
-import { BookOpen, Sparkles, Star } from 'lucide-react'
+import { useEffect } from 'react'
+import { BookOpen, Sparkles } from 'lucide-react'
 
 // Tambahkan import ini di bawah lucide-react
 import workspaceCollage from '../../assets/materials/Learning workspace collage.png'
 
 export default function AuthLayout({ variant = 'login', children }) {
   const isRegister = variant === 'register'
+
+  useEffect(() => {
+    document.title = isRegister ? 'Register · ReLearn' : 'Login · ReLearn'
+  }, [isRegister])
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-[#F8F6EF] font-['Inter',_sans-serif] text-[#181916] min-[1024px]:flex-row min-[1024px]:overflow-hidden">
