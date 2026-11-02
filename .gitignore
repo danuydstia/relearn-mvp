@@ -89,3 +89,7 @@ backend/public/avatars
 
 # own agent markdown rules
 AGENTS_2.md
+
+## Ignore the .env file in the ai-service directory
+ai-service/venv/
+ai-service/.env
