@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Re:Learn — Panduan Setup Repository
 
 Panduan ini menjelaskan cara menyiapkan repository Re:Learn untuk pengembangan lokal. Ada dua jalur:
@@ -665,3 +666,6 @@ Hal-hal berikut bagian dari rencana Re:Learn tetapi belum dibutuhkan untuk menja
 - **AI Service Layer:** file `config/ai.php` dan satu class client OpenRouter yang dilewati semua fitur AI, beserta pencatatan penggunaan dan kuota.
 - **Real-time:** Laravel Reverb untuk kuis kolaboratif.
 - **Pembayaran:** kunci Midtrans sandbox dan URL tunnel publik (misalnya ngrok) untuk menguji webhook.
+=======
+# relearn-mvp
+>>>>>>> 61f317d41c7a04dc7df14648c39e825e39e2d843
