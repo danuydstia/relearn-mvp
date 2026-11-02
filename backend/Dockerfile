@@ -16,8 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libonig-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install ekstensi PHP yang dibutuhkan (pdo_pgsql & pgsql untuk Vercel Postgres, zip, bcmath, pcntl, intl, opcache)
+# Install ekstensi PHP yang dibutuhkan (pdo_mysql, pdo_pgsql, pgsql, zip, bcmath, pcntl, intl, opcache)
 RUN docker-php-ext-install -j$(nproc) \
+    pdo_mysql \
     pdo_pgsql \
     pgsql \
     zip \

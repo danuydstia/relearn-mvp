@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { api } from '../lib/api'
+import { api, API_BASE_URL } from '../lib/api'
 
 const AuthContext = createContext(null)
 
@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
   }
 
   const loginWithGoogle = () => {
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google/redirect`
+    window.location.href = `${API_BASE_URL}/auth/google/redirect`
   }
 
   // Ambil user dari token yang diberikan (dipakai untuk Google callback)
